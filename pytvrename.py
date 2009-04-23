@@ -4,6 +4,20 @@ import os
 import re
 
 
+class Show:
+    def __init__(self, title="", rating=0):
+        self.title = title
+        self.attributes = {}
+        self.episodes = {}
+
+class ShowRenamer:
+	
+	
+	
+if __name__ == "__main__":
+    main()
+
+
 base_path = '/SlugMedia/Videos/TV'
 
 for show in os.listdir( base_path ):
