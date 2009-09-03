@@ -23,15 +23,20 @@ class TestEpisodeGuide(unittest.TestCase):
 	"""docstring for TestEpisodeGuide"""
 
 	def setUp(self):
-		""" """
-		self.show = "House"
-		self.episode = 11
-		self.season = 3
-		self.title  = "Words and Deeds"
+		""" specify a set of known cases """
+		self.testCases = [ 
+			{
+				'show': "House",
+				'episode': 11,
+				'season': 3,
+				'title': "Words and Deeds"
+			}
+		]
 		
 	def testGetEpisodeName(self):
-		""" """
-		assert self.title == pytvrename.getEpisodeName( self.show, self.season, self.episode)
+		""" test the episode name of each of the cases """
+		for case in self.testCases:
+			assert case['title'] == pytvrename.getEpisodeName( case['show'], case['season'], case['episode'])
 	
 		
 		
