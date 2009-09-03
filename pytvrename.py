@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-showScrapping.py
+pytvrename.py
 
 Created by Miguel Vaz on 2009-08-31.
 Copyright (c) 2009. All rights reserved.
