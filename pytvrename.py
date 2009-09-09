@@ -23,11 +23,12 @@ def getPageOfShow( show ):
 	return html
 
 
+
 def getEpisodeName( show, season, episode ):
 	""" 
 	"""
 	page = getPageOfShow( show )
-
+	
     # remove <script> stuff, because it breaks BeautifulSoup
 	p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
 	html = p.sub( "", page)
@@ -35,13 +36,13 @@ def getEpisodeName( show, season, episode ):
 	soup = BeautifulSoup(html)
 	# find the part that has the episode list
 	page = soup.find(id="eplist").pre
-
+	
 	# compile the regular expression
 	reg = "\s*\d+\.\s+%(season)s-\s*%(episode)s.*? \w{3} \d{2}(.*$)" % {'season': str(season), 'episode': str(episode)}
 	reg = re.compile( reg, re.I | re.U )
 	
 	reg2 = re.compile( "<a.*?>(.*?)<\/a>", re.I )
-
+	
 	# split the page into different lines
 	for line in str(page).splitlines():
 		if reg.search( line ):
@@ -50,15 +51,18 @@ def getEpisodeName( show, season, episode ):
 	else:
 		# TODO raise EpisodeNotFound exception
 		title = ""
-
+	
 	return title
 
 
+
 def scrapeFilename( filename ):
+	""" takes the filename and returns the show, episode and season """
 	reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<episode>\d+)[\._ \-]"
 	reg = re.compile( reg, re.I )
 	result = reg.search( filename )
 	return result.groupdict()
+
 
 def normalizeShowName( show ):
 	""" several possibilities for this:
@@ -73,6 +77,7 @@ def normalizeShowName( show ):
 
 def generateCorrectFilename( show, season, episode, title ):
 	return "%s S%dE%d %s" % [ show, season, episode, title]
+
 
 def finalPath( baseDir, show, season, fileName):
 	return "%s/%s/Season %s/%s" % [ baseDir, show, season, fileName ]
@@ -98,64 +103,62 @@ def levenshtein(s1, s2):
 		
 	return previous_row[-1]
 
-def lev(a, b):
-	if not a: return len(b)
-	if not b: return len(a)
-	return min(lev(a[1:], b[1:])+(a[0] != b[0]), lev(a[1:], b)+1, lev(a, b[1:])+1)
+# def lev(a, b):
+# 	if not a: return len(b)
+# 	if not b: return len(a)
+# 	return min(lev(a[1:], b[1:])+(a[0] != b[0]), lev(a[1:], b)+1, lev(a, b[1:])+1)
 
 
 
 def main():
-	show = "House"
+	show = "Lost"
 	title = getEpisodeName( show, 3, 11)
 	print title
+	print levenshtein( "saa", "sab")
 
 
 if __name__ == '__main__':
 	main()
 
-
-
-
-	#case Format_EpGuides { #{{{
-	# EpGuides.com format
-	#                            Original
-	#  Episode #      Prod #     Air Date   Episode Title
-	#_____ ______ ____________ ___________ ___________________________________________
-	#
-	#
-	#Season 1
-	#
-	#  1.   1- 1                26 Mar 05   Rose
-	#  2.   1- 2                 2 Apr 05   The End of the World
-	#  3.   1- 3                 9 Apr 05   The Unquiet Dead
-	##
-	# OR (after simplification that takes place prior to this stage)
-	##
-	#  1.   1- 1                26 Mar 05   <a>Rose</a>
-	#  2.   1- 2                 2 Apr 05   <a>The End of the World</a>
-	#  3.   1- 3                 9 Apr 05   <a>The Unquiet Dead</a>
-	#
-	# NB: The air date is missing in some cases
-	#
-	# 	my ($num, $epTitle);
-	# 	
-	# 	foreach(@input)
-	# 	{
-	# 		# Most episodes
-	# 		if( ($num, $epTitle) = ($_ =~ /\s*\d+\.\s+$season-(..).*? \w{3} \d{2}(.*$)/) )
-	# 		{
-	# 			# Cleanup whitespace (and tags if using online version)
-	# 			($epTitle) = ($epTitle =~ /^\s*(?:\<a\>)?(.*?)(?:\<\/a\>)?$/);
-	# 			check_and_push($epTitle, \@name, $num);
-	# 		}
-	# 		# Pilot episodes (c.f. "Lost" & "24" season 1)
-	# 		elsif( ($num, $epTitle) = ($_ =~ /\s+P-\s*(\d+).*?\d+ \w{3} \d{2}(.*$)/) )
-	# 		{
-	# 			# Cleanup whitespace (and tags if using online version)
-	# 			($epTitle) = ($epTitle =~ /^\s*(?:\<a\>)?(.*?)(?:\<\/a\>)?$/);
-	# 			check_and_push($epTitle, \@pname, $num);
-	# 		}
-	# 	}
-	# 
-	# } # End Format_EpGuides }}}
+#case Format_EpGuides { #{{{
+# EpGuides.com format
+#                            Original
+#  Episode #      Prod #     Air Date   Episode Title
+#_____ ______ ____________ ___________ ___________________________________________
+#
+#
+#Season 1
+#
+#  1.   1- 1                26 Mar 05   Rose
+#  2.   1- 2                 2 Apr 05   The End of the World
+#  3.   1- 3                 9 Apr 05   The Unquiet Dead
+##
+# OR (after simplification that takes place prior to this stage)
+##
+#  1.   1- 1                26 Mar 05   <a>Rose</a>
+#  2.   1- 2                 2 Apr 05   <a>The End of the World</a>
+#  3.   1- 3                 9 Apr 05   <a>The Unquiet Dead</a>
+#
+# NB: The air date is missing in some cases
+#
+# 	my ($num, $epTitle);
+# 	
+# 	foreach(@input)
+# 	{
+# 		# Most episodes
+# 		if( ($num, $epTitle) = ($_ =~ /\s*\d+\.\s+$season-(..).*? \w{3} \d{2}(.*$)/) )
+# 		{
+# 			# Cleanup whitespace (and tags if using online version)
+# 			($epTitle) = ($epTitle =~ /^\s*(?:\<a\>)?(.*?)(?:\<\/a\>)?$/);
+# 			check_and_push($epTitle, \@name, $num);
+# 		}
+# 		# Pilot episodes (c.f. "Lost" & "24" season 1)
+# 		elsif( ($num, $epTitle) = ($_ =~ /\s+P-\s*(\d+).*?\d+ \w{3} \d{2}(.*$)/) )
+# 		{
+# 			# Cleanup whitespace (and tags if using online version)
+# 			($epTitle) = ($epTitle =~ /^\s*(?:\<a\>)?(.*?)(?:\<\/a\>)?$/);
+# 			check_and_push($epTitle, \@pname, $num);
+# 		}
+# 	}
+# 
+# } # End Format_EpGuides }}}
