@@ -6,7 +6,7 @@ class TestAgainstFile(unittest.TestCase):
 	
 	def setUp(self):
 		"""load the file"""
-		self.file = open( "fullShowList.txt", "r" )
+		self.file = open( "untitled.txt", "r" )
 	
 	def tearDown(self):
 		"""close the file"""
@@ -17,7 +17,11 @@ class TestAgainstFile(unittest.TestCase):
 		"""tests whether the name of """
 		# for line in self.file:
 		# 	print line
-		assert 2 == 2
+		line = self.file.readline()
+		info = pytvrename.scrapeFilename( line )
+		print info['show']
+		assert info['show'] == "Chuck"
+		
 	
 class TestEpisodeGuide(unittest.TestCase):
 	"""docstring for TestEpisodeGuide"""
@@ -33,12 +37,12 @@ class TestEpisodeGuide(unittest.TestCase):
 			}
 		]
 		
+	
 	def testGetEpisodeName(self):
 		""" test the episode name of each of the cases """
 		for case in self.testCases:
 			assert case['title'] == pytvrename.getEpisodeName( case['show'], case['season'], case['episode'])
 	
-		
 		
 	# def testSeason(self):
 	# 	"""tests whether the name of """

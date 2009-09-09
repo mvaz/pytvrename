@@ -55,10 +55,29 @@ def getEpisodeName( show, season, episode ):
 
 
 def scrapeFilename( filename ):
-	return { "show": "Show", "season": 1, "episode": 1}
+	reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<episode>\d+)[\._ \-]"
+	reg = re.compile( reg, re.I )
+	result = reg.search( filename )
+
+	show    = result.group('show')
+	season  = result.group('season') 
+	episode = result.group('episode')
+	print result.groupdict()
+		
+	return { "show": show, "season": season, "episode": episode}
+
+def generateCorrectFilename( show, season, episode, title ):
+	return "%s S%dE%d %s" % [ show, season, episode, title]
 
 def finalPath( baseDir, show, season, fileName):
 	return "%s/%s/Season %s/%s" % [ baseDir, show, season, fileName ]
+
+
+def identifyShow( show ):
+	""" """
+	return show
+	# 1 regularize filename
+	
 
 
 def levenshtein(s1, s2):
