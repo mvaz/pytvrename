@@ -1,5 +1,5 @@
 import unittest
-import pytvrename
+from pytvrename import *
 
 
 class TestAgainstFile(unittest.TestCase):
@@ -13,16 +13,27 @@ class TestAgainstFile(unittest.TestCase):
 		self.file.close()
 
 
-	def testShow(self):
+	def testOneShow(self):
 		"""tests whether the name of """
 		# for line in self.file:
 		# 	print line
 		line = self.file.readline()
-		info = pytvrename.scrapeFilename( line )
-		print info['show']
+		info = scrapeFilename( line )
 		assert info['show'] == "Chuck"
 		
-	
+	def testRenameFile(self):
+		""" """
+		for line in self.file:
+			info = scrapeFilename( line )
+			info['show'] = normalizeShowName( info['show'] )
+			info['season'] = int( info['season'] )
+			info['episode'] = int( info['episode'] )
+			name = getEpisodeName( info['show'], info['season'], info['episode'])
+			print line
+			print generateCorrectFilename( info['show'], info['season'], info['episode'], name)
+
+
+
 class TestEpisodeGuide(unittest.TestCase):
 	"""docstring for TestEpisodeGuide"""
 
@@ -41,7 +52,7 @@ class TestEpisodeGuide(unittest.TestCase):
 	def testGetEpisodeName(self):
 		""" test the episode name of each of the cases """
 		for case in self.testCases:
-			assert case['title'] == pytvrename.getEpisodeName( case['show'], case['season'], case['episode'])
+			assert case['title'] == getEpisodeName( case['show'], case['season'], case['episode'])
 	
 		
 	# def testSeason(self):
