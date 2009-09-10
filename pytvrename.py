@@ -77,7 +77,7 @@ def normalizeShowName( show ):
 
 def generateCorrectFilename( show, season, episode, title ):
 	# return "%s S%dE%d %s" % [ show, season, episode, title ]
-	return show
+	return show + "-" + str(season) + str(episode) + title
 
 
 def finalPath( baseDir, show, season, fileName):
