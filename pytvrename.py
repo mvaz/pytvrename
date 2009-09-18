@@ -28,7 +28,7 @@ def getEpisodeName( show, season, episode ):
 	""" 
 	"""
 	page = getPageOfShow( show )
-	
+	print page
     # remove <script> stuff, because it breaks BeautifulSoup
 	p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
 	html = p.sub( "", page)
