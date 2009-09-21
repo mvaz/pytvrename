@@ -48,20 +48,13 @@ class TestEpisodeGuide(unittest.TestCase):
 			}
 		]
 		
-	
+	# 
 	def testGetEpisodeName(self):
 		""" test the episode name of each of the cases """
 		for case in self.testCases:
 			assert case['title'] == getEpisodeName( case['show'], case['season'], case['episode'])
-	
-		
-	# def testSeason(self):
-	# 	"""tests whether the name of """
-	# 	assert 1 == 2
-	# 	
-	# def testEpisodeName(self):
-	# 	"""tests whether the name of """
-	# 	assert 1 == 2
+
+
 
 if __name__ == "__main__":
       unittest.main()   
