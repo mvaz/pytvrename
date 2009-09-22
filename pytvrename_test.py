@@ -45,6 +45,18 @@ class TestEpisodeGuide(unittest.TestCase):
 				'episode': 11,
 				'season': 3,
 				'title': "Words and Deeds"
+			},
+			{
+				'show': "Lost",
+				'episode': 21,
+				'season': 2,
+				'title': "?"
+			},
+			{
+				'show': "Heroes",
+				'episode': 15,
+				'season': 1,
+				'title': "Run!"
 			}
 		]
 		

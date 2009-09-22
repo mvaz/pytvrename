@@ -30,7 +30,7 @@ def getEpisodeName( show, season, episode ):
 	and returns the title of a given episode and season
 	"""
 	page = getPageOfShow( show )
-	# print page
+	
     # remove <script> stuff, because it breaks BeautifulSoup
 	p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
 	html = p.sub( "", page)
@@ -40,8 +40,7 @@ def getEpisodeName( show, season, episode ):
 	page = soup.find(id="eplist").pre
 	
 	# compile the regular expression
-	episode_reg = "(?:%(episode)2d|%(episode)02d)" % {'episode': int(episode)}
-	reg = "\s*\d+\.?\s+%(season)s-\s*%(episode)s\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'episode': episode_reg }
+	reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(episode)2d|%(episode)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'episode': int(episode) }
 	reg = re.compile( reg, re.I | re.U )
 	
 	reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
