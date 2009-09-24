@@ -1,6 +1,6 @@
 import unittest
 from pytvrename import *
-
+import codecs
 
 class TestAgainstFile(unittest.TestCase):
 	
@@ -33,7 +33,30 @@ class TestAgainstFile(unittest.TestCase):
 			print generateCorrectFilename( info['show'], info['season'], info['episode'], name)
 
 
+class TestRenaming(unittest.TestCase):
+	"""docstring for TestRenaming"""
+	def setUp(self):
+		"""load the file"""
+		print "open"
+		self.file = codecs.open( "showList.txt", "r" )
 
+	def tearDown(self):
+		"""close the file"""
+		print "close"
+		self.file.close()
+	
+	def testRenaming(self):
+		"""docstring for test"""
+		print "testRenaming"
+		for line in self.file:
+			try:
+				info = scrapeFilename( line )
+				print line + " -> " + str(info)
+			except:
+				print line
+
+		
+	
 class TestEpisodeGuide(unittest.TestCase):
 	"""docstring for TestEpisodeGuide"""
 

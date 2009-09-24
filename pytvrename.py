@@ -61,7 +61,7 @@ def getEpisodeName( show, season, episode ):
 def scrapeFilename( filename ):
 	""" takes the filename and returns the show, episode and season """
 	reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<episode>\d+)[\._ \-]"
-	reg = re.compile( reg, re.I )
+	reg = re.compile( reg, re.I | re.U )
 	result = reg.search( filename )
 	return result.groupdict()
 
