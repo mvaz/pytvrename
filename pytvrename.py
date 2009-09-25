@@ -9,7 +9,7 @@ Copyright (c) 2009. All rights reserved.
 
 import sys, os
 import urllib2, re
-from BeautifulSoup import BeautifulSoup
+from BeautifulSoup import BeautifulSoup, SoupStrainer
 
 
 def getPageOfShow( show ):
@@ -23,6 +23,26 @@ def getPageOfShow( show ):
 	return html
 
 
+def getShowList( ):
+	"""docstring for getShowList"""
+	showListURL = "http://ezrss.it/shows/"
+	# download page
+	response = urllib2.urlopen( showListURL )
+	html = response.read()
+
+	links = SoupStrainer('a', href=re.compile('show_name') )
+	filt = lambda m: m.group(1)
+	# reg = re.compile('<.*?>(.*?)</a>', re.U | re.I)
+	liste = [ re.sub( '<.*?>(.*?)</a>', filt, str(tag) ) for tag in BeautifulSoup(html, parseOnlyThese=links)]
+	
+	# for l in liste:
+		# print l.__class
+	
+
+	# for i in BeautifulSoup(html, parseOnlyThese=links):
+		# print i
+	return liste
+	
 
 def getEpisodeName( show, season, episode ):
 	""" 
@@ -71,6 +91,7 @@ def normalizeShowName( show ):
 	  - list + levenshtein
 	  - guess it from epguides
 	"""
+	show = re.sub( r'#.*$', "", phone)
 	return show
 	# 1 regularize filename
 
@@ -114,10 +135,14 @@ def levenshtein(s1, s2):
 
 
 def main():
-	show = "Lost"
-	title = getEpisodeName( show, 3, 11)
-	print title
-	print levenshtein( "saa", "sab")
+	# show = "Lost"
+	# 	title = getEpisodeName( show, 3, 11)
+	html = getShowList()
+	print html
+	# soup = BeautifulSoup( html )
+	# zbr = soup.findAll( )
+	# linksToBob = SoupStrainer('a', href=re.compile('bob.com/'))
+	# print levenshtein( "saa", "sab")
 
 
 if __name__ == '__main__':
