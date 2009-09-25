@@ -32,15 +32,9 @@ def getShowList( ):
 
 	links = SoupStrainer('a', href=re.compile('show_name') )
 	filt = lambda m: m.group(1)
-	# reg = re.compile('<.*?>(.*?)</a>', re.U | re.I)
-	liste = [ re.sub( '<.*?>(.*?)</a>', filt, str(tag) ) for tag in BeautifulSoup(html, parseOnlyThese=links)]
-	
-	# for l in liste:
-		# print l.__class
-	
 
-	# for i in BeautifulSoup(html, parseOnlyThese=links):
-		# print i
+	liste = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
+	
 	return liste
 	
 
