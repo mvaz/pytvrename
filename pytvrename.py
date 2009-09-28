@@ -27,16 +27,39 @@ def getShowList( ):
 	"""docstring for getShowList"""
 	showListURL = "http://ezrss.it/shows/"
 	# download page
-	response = urllib2.urlopen( showListURL )
-	html = response.read()
-
+	html = urllib2.urlopen( showListURL ).read()
+	
 	links = SoupStrainer('a', href=re.compile('show_name') )
-	filt = lambda m: m.group(1)
-
 	liste = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
 	
 	return liste
 	
+
+class ShowList(object):
+	"""
+	docstring for ShowList
+	"""
+	FILE, EZTV, PYTVSHOWS = range(3)
+    	
+	def __init__(self, mode = EZTV, list = []):
+		self.mode = mode
+		self.list = list
+	
+	def updateListEZTV(self):
+		""" docstring for fillList """
+		showListURL = "http://ezrss.it/shows/"
+		
+		html = urllib2.urlopen( showListURL ).read()
+		links = SoupStrainer('a', href=re.compile('show_name') )
+		self.list = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
+		
+	def normalizeShowTitle(self, title):
+		""" takes a string containing a title, and returns the most probable from the list """
+		# [\.\']
+		return title
+	
+	
+
 
 def getEpisodeName( show, season, episode ):
 	""" 
@@ -131,8 +154,9 @@ def levenshtein(s1, s2):
 def main():
 	# show = "Lost"
 	# 	title = getEpisodeName( show, 3, 11)
-	html = getShowList()
-	print html
+	sl = ShowList()
+	sl.updateListEZTV()
+	print sl.list
 	# soup = BeautifulSoup( html )
 	# zbr = soup.findAll( )
 	# linksToBob = SoupStrainer('a', href=re.compile('bob.com/'))
@@ -142,24 +166,6 @@ def main():
 if __name__ == '__main__':
 	main()
 
-#case Format_EpGuides { #{{{
-# EpGuides.com format
-#                            Original
-#  Episode #      Prod #     Air Date   Episode Title
-#_____ ______ ____________ ___________ ___________________________________________
-#
-#
-#Season 1
-#
-#  1.   1- 1                26 Mar 05   Rose
-#  2.   1- 2                 2 Apr 05   The End of the World
-#  3.   1- 3                 9 Apr 05   The Unquiet Dead
-##
-# OR (after simplification that takes place prior to this stage)
-##
-#  1.   1- 1                26 Mar 05   <a>Rose</a>
-#  2.   1- 2                 2 Apr 05   <a>The End of the World</a>
-#  3.   1- 3                 9 Apr 05   <a>The Unquiet Dead</a>
 #
 # NB: The air date is missing in some cases
 #
