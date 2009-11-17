@@ -1,7 +1,7 @@
 import unittest, os, sys
 import codecs
 
-module_location = os.path.dirname(__file__)
+module_location = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.abspath(os.path.dirname(module_location)))
 
 from pytvrename import *
@@ -10,7 +10,8 @@ class TestAgainstFile(unittest.TestCase):
 	
 	def setUp(self):
 		"""load the file"""
-		self.file = open( "untitled.txt", "r" )
+		filename = module_location + "/" + "untitled.txt"
+		self.file = open( filename, "r" )
 	
 	def tearDown(self):
 		"""close the file"""

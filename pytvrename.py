@@ -112,7 +112,7 @@ def normalizeShowName( show ):
 	  - list + levenshtein
 	  - guess it from epguides
 	"""
-	show = re.sub( r'#.*$', "", phone)
+	show = re.sub( r'#.*$', "", show)
 	return show
 	# 1 regularize filename
 
