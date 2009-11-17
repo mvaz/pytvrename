@@ -34,6 +34,10 @@ def getShowList( ):
 	
 	return liste
 	
+class Show(object):
+	"""
+	"""
+
 
 class ShowList(object):
 	"""

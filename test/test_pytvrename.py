@@ -1,6 +1,10 @@
-import unittest
-from pytvrename import *
+import unittest, os, sys
 import codecs
+
+module_location = os.path.dirname(__file__)
+sys.path.insert(0, os.path.abspath(os.path.dirname(module_location)))
+
+from pytvrename import *
 
 class TestAgainstFile(unittest.TestCase):
 	
@@ -62,7 +66,7 @@ class TestEpisodeGuide(unittest.TestCase):
 
 	def setUp(self):
 		""" specify a set of known cases """
-		self.testCases = [ 
+		self.testCases = [
 			{
 				'show': "House",
 				'episode': 11,
