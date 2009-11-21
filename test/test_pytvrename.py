@@ -10,7 +10,7 @@ class TestAgainstFile(unittest.TestCase):
 	
 	def setUp(self):
 		"""load the file"""
-		filename = module_location + "/" + "untitled.txt"
+		filename = module_location + "/" + "showList.txt"
 		self.file = open( filename, "r" )
 	
 	def tearDown(self):
@@ -87,12 +87,13 @@ class TestEpisodeGuide(unittest.TestCase):
 				'title': "Run!"
 			}
 		]
-		
+	
 	# 
 	def testGetEpisodeName(self):
 		""" test the episode name of each of the cases """
 		for case in self.testCases:
 			assert case['title'] == getEpisodeName( case['show'], case['season'], case['episode'])
+	
 
 
 

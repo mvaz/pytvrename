@@ -5,6 +5,11 @@ import re
 
 from pytvrename import *
 
+
+TEST_DIR = os.path.join( os.path.abspath(os.path.dirname(__file__)), "test", "testdirectory")
+TORRENTS_DIR = os.path.join( TEST_DIR, "torrentsdir")
+MOVIE_DIR    = os.path.join( TEST_DIR, "moviedir")
+
 # class Show:
 #     def __init__(self, title="", rating=0):
 #         self.title = title
@@ -13,13 +18,38 @@ from pytvrename import *
 # 
 # class ShowRenamer:
 # 	
-	
+
+
+
+
+
+def isMovieFile(filename):
+	"""
+	determines whether a given file is a movie file 
+	currently give by a simple regular expression
+	TODO add isfile test
+	"""
+	reg = re.compile( ".*?.avi$", re.I | re.U )
+	return reg.match(filename)
+
 	
 def main():
 	"""docstring for main"""
-	sl = ShowList()
-	sl.updateListEZTV()
-	print sl.list
+	# sl = ShowList()
+	# sl.updateListEZTV()
+
+	# list the directory
+	dirList = os.listdir(TORRENTS_DIR)
+	for file in dirList:
+		if not isMovieFile( file ):
+			continue
+		
+		zbr = scrapeFilename( file )
+		print zbr['show'], int(zbr['episode']), int(zbr['season'] )
+		# print zbr['show'], zbr['episode'], zbr['season']
+		print getEpisodeName( zbr['show'], int(zbr['episode']), int(zbr['season'] ) )
+	
+	
 	
 	
 if __name__ == "__main__":

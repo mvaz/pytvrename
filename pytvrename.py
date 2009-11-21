@@ -93,6 +93,7 @@ def getEpisodeName( show, season, episode ):
 			break
 	else:
 		# TODO raise EpisodeNotFound exception
+		print "nothing found"
 		title = ""
 	
 	return title
