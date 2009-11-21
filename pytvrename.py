@@ -33,7 +33,7 @@ def getShowList( ):
 	liste = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
 	
 	return liste
-	
+
 class Show(object):
 	"""
 	"""
@@ -154,21 +154,21 @@ def levenshtein(s1, s2):
 # 	return min(lev(a[1:], b[1:])+(a[0] != b[0]), lev(a[1:], b)+1, lev(a, b[1:])+1)
 
 
-
-def main():
-	# show = "Lost"
-	# 	title = getEpisodeName( show, 3, 11)
-	sl = ShowList()
-	sl.updateListEZTV()
-	print sl.list
-	# soup = BeautifulSoup( html )
-	# zbr = soup.findAll( )
-	# linksToBob = SoupStrainer('a', href=re.compile('bob.com/'))
-	# print levenshtein( "saa", "sab")
-
-
-if __name__ == '__main__':
-	main()
+# 
+# def main():
+# 	# show = "Lost"
+# 	# 	title = getEpisodeName( show, 3, 11)
+# 	sl = ShowList()
+# 	sl.updateListEZTV()
+# 	print sl.list
+# 	# soup = BeautifulSoup( html )
+# 	# zbr = soup.findAll( )
+# 	# linksToBob = SoupStrainer('a', href=re.compile('bob.com/'))
+# 	# print levenshtein( "saa", "sab")
+# 
+# 
+# if __name__ == '__main__':
+# 	main()
 
 #
 # NB: The air date is missing in some cases
