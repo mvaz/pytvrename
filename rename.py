@@ -31,21 +31,25 @@ def isMovieFile(filename):
 
 	
 def main():
-	"""docstring for main"""
+	"""
+	docstring for main
+	"""
 	# sl = ShowList()
 	# sl.updateListEZTV()
 
-	# print getEpisodeName( "Chuck", 2, 1)
-
 	# list the directory
 	dirList = os.listdir(TORRENTS_DIR)
-	for file in dirList:
-		if not isMovieFile( file ):
+	
+	for filename in dirList:
+		if not isMovieFile( filename ):
 			continue
-		zbr = scrapeFilename( file )
-		print zbr['show'], int(zbr['season']), int(zbr['episode'] )
-		# print zbr['show'], zbr['episode'], zbr['season']
-		print getEpisodeName( zbr['show'], int(zbr['season']), int(zbr['episode'] ) )
+		ep = Episode.createEpisodeFromFilename( filename )
+		print ep
+		# print ep.
+		# zbr = scrapeFilename( file )
+		# print zbr['show'], int(zbr['season']), int(zbr['episode'] )
+		# # print zbr['show'], zbr['episode'], zbr['season']
+		# print getEpisodeName( zbr['show'], int(zbr['season']), int(zbr['episode'] ) )
 	
 	
 	

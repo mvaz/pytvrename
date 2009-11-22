@@ -139,17 +139,27 @@ class Show(object):
 
 class Episode(object):
 	""" holds the information for an episode """
-	def __init__(self, show, season, episode, title = []):
+	def __init__(self, show, season, episode, title = ""):
 		super(Episode, self).__init__()
 		self.show = show
-		self.season = season
-		self.episode = episode
+		self.season = int(season)
+		self.number = int(episode)
 		self.title = title
 	
-	def generateCorrectFilename( show, season, episode, title ):
+	@staticmethod
+	def createEpisodeFromFilename( filename ):
+		""" """
+		reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<number>\d+)[\._ \-]"
+		reg = re.compile( reg, re.I | re.U )
+		zbr = reg.search( filename )
+		return Episode( zbr.group('show'), zbr.group('season'), zbr.group('number') )
+	
+	
+	def generateCorrectFilename(self):
 		""" """
 		# return show + "-" + str(season) + str(episode) + title
-		return "%s S%dE%d %s" % [ self.show, self.season, self.episode, self.title ]
+		# print self.show + "." + self.season + "" + self.episode + "." + self.title + "."
+		return "%s S%dE%d %s" % [ self.show, self.season, self.number, self.title ]
 		
 	
 	
