@@ -30,8 +30,8 @@ class TestAgainstFile(unittest.TestCase):
 		""" """
 		for line in self.file:
 			info = scrapeFilename( line )
-			info['show'] = normalizeShowName( info['show'] )
-			info['season'] = int( info['season'] )
+			info['show']    = normalizeShowName( info['show'] )
+			info['season']  = int( info['season'] )
 			info['episode'] = int( info['episode'] )
 			name = getEpisodeName( info['show'], info['season'], info['episode'])
 			print line

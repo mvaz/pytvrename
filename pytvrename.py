@@ -34,35 +34,7 @@ def getShowList( ):
 	
 	return liste
 
-class Show(object):
-	"""
-	"""
 
-
-class ShowList(object):
-	"""
-	docstring for ShowList
-	"""
-	FILE, EZTV, PYTVSHOWS = range(3)
-    	
-	def __init__(self, mode = EZTV, list = []):
-		self.mode = mode
-		self.list = list
-	
-	def updateListEZTV(self):
-		""" docstring for fillList """
-		showListURL = "http://ezrss.it/shows/"
-		
-		html = urllib2.urlopen( showListURL ).read()
-		links = SoupStrainer('a', href=re.compile('show_name') )
-		self.list = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
-		
-	def normalizeShowTitle(self, title):
-		""" takes a string containing a title, and returns the most probable from the list """
-		# [\.\']
-		return title
-	
-	
 
 
 def getEpisodeName( show, season, episode ):
@@ -71,7 +43,7 @@ def getEpisodeName( show, season, episode ):
 	and returns the title of a given episode and season
 	"""
 	page = getPageOfShow( show )
-	
+
     # remove <script> stuff, because it breaks BeautifulSoup
 	p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
 	html = p.sub( "", page)
@@ -79,13 +51,13 @@ def getEpisodeName( show, season, episode ):
 	soup = BeautifulSoup(html)
 	# find the part that has the episode list
 	page = soup.find(id="eplist").pre
-	
+
 	# compile the regular expression
 	reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(episode)2d|%(episode)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'episode': int(episode) }
 	reg = re.compile( reg, re.I | re.U )
-	
+
 	reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
-	
+
 	# split the page into different lines
 	for line in str(page).splitlines():
 		if reg.search( line ):
@@ -95,7 +67,7 @@ def getEpisodeName( show, season, episode ):
 		# TODO raise EpisodeNotFound exception
 		print "nothing found"
 		title = ""
-	
+
 	return title
 
 
@@ -121,8 +93,8 @@ def normalizeShowName( show ):
 
 
 def generateCorrectFilename( show, season, episode, title ):
-	# return "%s S%dE%d %s" % [ show, season, episode, title ]
-	return show + "-" + str(season) + str(episode) + title
+	return "%s S%dE%d %s" % [ show, season, episode, title ]
+	# return show + "-" + str(season) + str(episode) + title
 
 
 def finalPath( baseDir, show, season, fileName):
@@ -136,7 +108,7 @@ def levenshtein(s1, s2):
 		return levenshtein(s2, s1)
 	if not s1:
 		return len(s2)
-	
+
 	previous_row = xrange(len(s2) + 1)
 	for i, c1 in enumerate(s1):
 		current_row = [i + 1]
@@ -146,8 +118,88 @@ def levenshtein(s1, s2):
 			substitutions = previous_row[j] + (c1 != c2)
 			current_row.append(min(insertions, deletions, substitutions))
 		previous_row = current_row
-		
+
 	return previous_row[-1]
+
+
+
+
+##############################################################################
+#                             NEW STUFF                                      #
+##############################################################################
+
+
+
+class Show(object):
+	""" holds the info for a TVShow """
+	def __init__(self, name):
+		super(Show, self).__init__()
+		self.name = name
+		
+
+class Episode(object):
+	""" holds the information for an episode """
+	def __init__(self, show, season, episode, title = []):
+		super(Episode, self).__init__()
+		self.show = show
+		self.season = season
+		self.episode = episode
+		self.title = title
+	
+	def generateCorrectFilename( show, season, episode, title ):
+		""" """
+		# return show + "-" + str(season) + str(episode) + title
+		return "%s S%dE%d %s" % [ self.show, self.season, self.episode, self.title ]
+		
+	
+	
+	
+		
+
+class ShowList(object):
+	"""
+	docstring for ShowList
+	"""
+	FILE, EZTV, PYTVSHOWS = range(3)
+    	
+	def __init__(self, mode = EZTV, list = []):
+		self.mode = mode
+		self.list = list
+	
+	def updateListEZTV(self):
+		""" docstring for fillList """
+		showListURL = "http://ezrss.it/shows/"
+		
+		html = urllib2.urlopen( showListURL ).read()
+		links = SoupStrainer('a', href=re.compile('show_name') )
+		self.list = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
+		
+	def normalizeShowTitle(self, title):
+		""" takes a string containing a title, and returns the most probable from the list """
+		# [\.\']
+		return title
+	
+
+
+
+
+
+
+class EpisodeFileScraper(object):
+	"""docstring for EpisodeFileScraper"""
+	
+	def __init__(self):
+		super(EpisodeFileScraper, self).__init__()
+		self.reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<episode>\d+)[\._ \-]"
+		self.reg = re.compile( reg, re.I | re.U )
+		
+	def scrapeFilename( filename ):
+		""" takes the filename and returns the show, episode and season """
+		result = reg.search( filename )
+		return Episode()
+
+
+
 
 # def lev(a, b):
 # 	if not a: return len(b)

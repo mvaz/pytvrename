@@ -20,9 +20,6 @@ MOVIE_DIR    = os.path.join( TEST_DIR, "moviedir")
 # 	
 
 
-
-
-
 def isMovieFile(filename):
 	"""
 	determines whether a given file is a movie file 
@@ -38,16 +35,17 @@ def main():
 	# sl = ShowList()
 	# sl.updateListEZTV()
 
+	# print getEpisodeName( "Chuck", 2, 1)
+
 	# list the directory
 	dirList = os.listdir(TORRENTS_DIR)
 	for file in dirList:
 		if not isMovieFile( file ):
 			continue
-		
 		zbr = scrapeFilename( file )
-		print zbr['show'], int(zbr['episode']), int(zbr['season'] )
+		print zbr['show'], int(zbr['season']), int(zbr['episode'] )
 		# print zbr['show'], zbr['episode'], zbr['season']
-		print getEpisodeName( zbr['show'], int(zbr['episode']), int(zbr['season'] ) )
+		print getEpisodeName( zbr['show'], int(zbr['season']), int(zbr['episode'] ) )
 	
 	
 	
