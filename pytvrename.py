@@ -152,15 +152,12 @@ class Episode(object):
 		reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<number>\d+)[\._ \-]"
 		reg = re.compile( reg, re.I | re.U )
 		zbr = reg.search( filename )
-		return Episode( zbr.group('show'), zbr.group('season'), zbr.group('number') )
+		return Episode( zbr.group('show'), zbr.group('season'), zbr.group('number'), "" )
 	
 	
 	def generateCorrectFilename(self):
 		""" """
-		# return show + "-" + str(season) + str(episode) + title
-		# print self.show + "." + self.season + "" + self.episode + "." + self.title + "."
-		return "%s S%dE%d %s" % [ self.show, self.season, self.number, self.title ]
-		
+		return "%s S%02dE%02d %s" % (self.show, self.season, self.number, self.title)
 	
 	
 	

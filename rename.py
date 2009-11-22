@@ -45,7 +45,8 @@ def main():
 			continue
 		ep = Episode.createEpisodeFromFilename( filename )
 		print ep
-		# print ep.
+		# print "%s - %s" % ("ola", "isto")
+		print ep.generateCorrectFilename()
 		# zbr = scrapeFilename( file )
 		# print zbr['show'], int(zbr['season']), int(zbr['episode'] )
 		# # print zbr['show'], zbr['episode'], zbr['season']
