@@ -44,15 +44,9 @@ def main():
 		if not isMovieFile( filename ):
 			continue
 		ep = Episode.createEpisodeFromFilename( filename )
-		print ep
-		# print "%s - %s" % ("ola", "isto")
+		# ep.title = "bla"
 		print ep.generateCorrectFilename()
-		# zbr = scrapeFilename( file )
-		# print zbr['show'], int(zbr['season']), int(zbr['episode'] )
-		# # print zbr['show'], zbr['episode'], zbr['season']
 		# print getEpisodeName( zbr['show'], int(zbr['season']), int(zbr['episode'] ) )
-	
-	
 	
 	
 if __name__ == "__main__":

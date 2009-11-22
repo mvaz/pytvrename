@@ -155,9 +155,9 @@ class Episode(object):
 		return Episode( zbr.group('show'), zbr.group('season'), zbr.group('number'), "" )
 	
 	
-	def generateCorrectFilename(self):
+	def generateCorrectFilename(self, pattern = "%s S%02dE%02d %s"):
 		""" """
-		return "%s S%02dE%02d %s" % (self.show, self.season, self.number, self.title)
+		return pattern % (self.show, self.season, self.number, self.title)
 	
 	
 	
