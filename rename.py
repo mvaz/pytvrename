@@ -10,15 +10,6 @@ TEST_DIR = os.path.join( os.path.abspath(os.path.dirname(__file__)), "test", "te
 TORRENTS_DIR = os.path.join( TEST_DIR, "torrentsdir")
 MOVIE_DIR    = os.path.join( TEST_DIR, "moviedir")
 
-# class Show:
-#     def __init__(self, title="", rating=0):
-#         self.title = title
-#         self.attributes = {}
-#         self.episodes = {}
-# 
-# class ShowRenamer:
-# 	
-
 
 def isMovieFile(filename):
 	"""
@@ -37,6 +28,8 @@ def main():
 	# sl = ShowList()
 	# sl.updateListEZTV()
 
+	# renamer = EpisodeRenamer()
+
 	# list the directory
 	dirList = os.listdir(TORRENTS_DIR)
 	
@@ -45,9 +38,8 @@ def main():
 			continue
 		ep = Episode.createEpisodeFromFilename( filename )
 		# ep.title = "bla"
-		print ep.generateCorrectFilename()
-		# print getEpisodeName( zbr['show'], int(zbr['season']), int(zbr['episode'] ) )
-	
+		print ep.show
+		EpisodeRenamer.getPageOfShow( ep.show )
 	
 if __name__ == "__main__":
     main()

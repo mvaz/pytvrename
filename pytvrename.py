@@ -12,29 +12,73 @@ import urllib2, re
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 
 
-def getPageOfShow( show ):
-	""" 
-	Reads the epguides.com page of the show and returns the html contents 
+# def getPageOfShow( show ):
+# 	""" 
+# 	Reads the epguides.com page of the show and returns the html contents 
+# 	"""
+# 	url = "http://epguides.com/" + show
+# 	response = urllib2.urlopen(url)
+# 	html = response.read()
+# 	html = html.decode('iso-8859-1')
+# 	return html
+
+
+class EpisodeRenamer(object):
 	"""
-	url = "http://epguides.com/" + show
-	response = urllib2.urlopen(url)
-	html = response.read()
-	html = html.decode('iso-8859-1')
-	return html
-
-
-def getShowList( ):
-	"""docstring for getShowList"""
-	showListURL = "http://ezrss.it/shows/"
-	# download page
-	html = urllib2.urlopen( showListURL ).read()
+	docstring for EpisodeRenamer
+	"""
 	
-	links = SoupStrainer('a', href=re.compile('show_name') )
-	liste = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
+	showCache = dict()
 	
-	return liste
+	def __init__(self):
+		super(EpisodeRenamer, self).__init__()
+	
+	@staticmethod
+	def getPageOfShowFromEZTV( show ):
+		""" 
+		Reads the epguides.com page of the show and returns the html contents 
+		"""
+		url = "http://epguides.com/%s" % (show)
+		response = urllib2.urlopen(url)
+		html = response.read()
+		html = html.decode('iso-8859-1')
+		return html
+	
+	@staticmethod
+	def getPageOfShow( show ):
+		""" 
+		Reads the epguides.com page of the show and returns the html contents 
+		"""
+		print EpisodeRenamer.showCache
+		if not show in EpisodeRenamer.showCache:
+			try:
+				EpisodeRenamer.showCache['show'] = EpisodeRenamer.getPageOfShowFromEZTV( show )
+			except:
+				raise ShowNotFoundError("show name not recognized in eztv")
+		
+		return EpisodeRenamer.showCache['show']
 
 
+	@classmethod
+	def getShowList( ):
+		"""docstring for getShowList"""
+		showListURL = "http://ezrss.it/shows/"
+		# download page
+		html = urllib2.urlopen( showListURL ).read()
+	
+		links = SoupStrainer('a', href=re.compile('show_name') )
+		liste = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
+	
+		return liste
+
+
+class ShowNotFoundError(Exception):
+	def __init__(self,value):
+		self.value = value
+	
+	def __str__(self):
+		return repr(self.value)
+	
 
 
 def getEpisodeName( show, season, episode ):
@@ -159,9 +203,6 @@ class Episode(object):
 		""" """
 		return pattern % (self.show, self.season, self.number, self.title)
 	
-	
-	
-		
 
 class ShowList(object):
 	"""
@@ -192,18 +233,19 @@ class ShowList(object):
 
 
 
-class EpisodeFileScraper(object):
-	"""docstring for EpisodeFileScraper"""
-	
-	def __init__(self):
-		super(EpisodeFileScraper, self).__init__()
-		self.reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<episode>\d+)[\._ \-]"
-		self.reg = re.compile( reg, re.I | re.U )
-		
-	def scrapeFilename( filename ):
-		""" takes the filename and returns the show, episode and season """
-		result = reg.search( filename )
-		return Episode()
+# class EpisodeFileScraper(object):
+# 	"""docstring for EpisodeFileScraper"""
+# 	
+# 	def __init__(self):
+# 		super(EpisodeFileScraper, self).__init__()
+# 		self.reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<episode>\d+)[\._ \-]"
+# 		self.reg = re.compile( self.reg, re.I | re.U )
+# 		
+# 	def scrapeFilename( filename ):
+# 		""" takes the filename and returns the show, episode and season """
+# 		result = reg.search( filename )
+# 		return Episode()
+# 	
 
 
 
