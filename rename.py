@@ -37,10 +37,10 @@ def main():
 		if not isMovieFile( filename ):
 			continue
 		ep = Episode.createEpisodeFromFilename( filename )
-		# ep.title = "bla"
 		print ep.show
 		EpisodeRenamer.getPageOfShow( ep.show )
 	
+#
 if __name__ == "__main__":
     main()
 

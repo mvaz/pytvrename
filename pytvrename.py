@@ -34,6 +34,16 @@ class EpisodeRenamer(object):
 		super(EpisodeRenamer, self).__init__()
 	
 	@staticmethod
+	def normalizeShowTitleEZTV( showTitle ):
+		""" 
+		
+		"""
+		cleanShowTitle = re.sub( r'[\,\.]', '', showTitle)
+		cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
+		return cleanShowTitle
+	
+	
+	@staticmethod
 	def getPageOfShowFromEZTV( show ):
 		""" 
 		Reads the epguides.com page of the show and returns the html contents 
@@ -49,12 +59,13 @@ class EpisodeRenamer(object):
 		""" 
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
-		print EpisodeRenamer.showCache
+		show = EpisodeRenamer.normalizeShowTitleEZTV( show )
+		print show
 		if not show in EpisodeRenamer.showCache:
 			try:
 				EpisodeRenamer.showCache['show'] = EpisodeRenamer.getPageOfShowFromEZTV( show )
 			except:
-				raise ShowNotFoundError("show name not recognized in eztv")
+				raise ShowNotFoundError("show name '%s' not recognized by eztv" % (show) )
 		
 		return EpisodeRenamer.showCache['show']
 
@@ -71,15 +82,64 @@ class EpisodeRenamer(object):
 	
 		return liste
 
+	@classmethod
+	def getEpisodeName( show, season, episode ):
+		""" 
+		Reads the epguides.com page of the show
+		and returns the title of a given episode and season
+		"""
+		page = getPageOfShow( show )
+    
+	    # remove <script> stuff, because it breaks BeautifulSoup
+		p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
+		html = p.sub( "", page)
+		# parse the page
+		soup = BeautifulSoup(html)
+		# find the part that has the episode list
+		page = soup.find(id="eplist").pre
+    
+		# compile the regular expression
+		reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(episode)2d|%(episode)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'episode': int(episode) }
+		reg = re.compile( reg, re.I | re.U )
+    
+		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
+    
+		# split the page into different lines
+		for line in str(page).splitlines():
+			if reg.search( line ):
+				title = reg2.search( line ).group(1)
+				break
+		else:
+			# TODO raise EpisodeNotFound exception
+			raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (episode, season, show) )
+			# print "nothing found"
+			# title = ""
+    
+		return title
+	
 
 class ShowNotFoundError(Exception):
 	def __init__(self,value):
 		self.value = value
 	
 	def __str__(self):
-		return repr(self.value)
+		return str(self.value)
 	
 
+class EpisodeNotFound(Exception):
+	"""docstring for EpisodeNotFound"""
+	def __init__(self, value):
+		super(EpisodeNotFound, self).__init__()
+		self.value = value
+	def __str__(self):
+		return str(self.value)
+	
+
+def getEpisodeName( episode ):
+	"""
+	"""
+	
+	return getEpisodeName( episode.show, episode.season, episode.title )
 
 def getEpisodeName( show, season, episode ):
 	""" 
@@ -109,8 +169,9 @@ def getEpisodeName( show, season, episode ):
 			break
 	else:
 		# TODO raise EpisodeNotFound exception
-		print "nothing found"
-		title = ""
+		raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (episode, season, show) )
+		# print "nothing found"
+		# title = ""
 
 	return title
 
