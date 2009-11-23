@@ -82,13 +82,27 @@ class EpisodeRenamer(object):
 	
 		return liste
 
-	@classmethod
-	def getEpisodeName( show, season, episode ):
+	# @classmethod
+	# def getEpisodeName( episode ):
+	# 	""" 
+	# 	Reads the epguides.com page of the show
+	# 	and returns the title of a given episode and season
+	# 	"""
+	# 	return EpisodeRenamer.getEpisodeName( episode.show, episode.season, episode.episode )
+	
+
+	@staticmethod
+	def getEpisodeName( episode ):
 		""" 
 		Reads the epguides.com page of the show
 		and returns the title of a given episode and season
 		"""
-		page = getPageOfShow( show )
+		
+		show = episode.show
+		season = episode.season
+		number = episode.number
+		
+		page = EpisodeRenamer.getPageOfShow( show )
     
 	    # remove <script> stuff, because it breaks BeautifulSoup
 		p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
@@ -99,7 +113,7 @@ class EpisodeRenamer(object):
 		page = soup.find(id="eplist").pre
     
 		# compile the regular expression
-		reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(episode)2d|%(episode)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'episode': int(episode) }
+		reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(number)2d|%(number)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'number': int(number) }
 		reg = re.compile( reg, re.I | re.U )
     
 		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
@@ -111,7 +125,7 @@ class EpisodeRenamer(object):
 				break
 		else:
 			# TODO raise EpisodeNotFound exception
-			raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (episode, season, show) )
+			raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (number, season, show) )
 			# print "nothing found"
 			# title = ""
     
