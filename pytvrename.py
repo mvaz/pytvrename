@@ -106,6 +106,7 @@ class EpisodeRenamer(object):
 	
 
 class ShowNotFoundError(Exception):
+	""" docstring for EpisodeNotFound """
 	def __init__(self,value):
 		self.value = value
 	
@@ -113,16 +114,16 @@ class ShowNotFoundError(Exception):
 		return str(self.value)
 	
 
+
+
 class EpisodeNotFound(Exception):
-	"""docstring for EpisodeNotFound"""
+	""" docstring for EpisodeNotFound """
 	def __init__(self, value):
 		super(EpisodeNotFound, self).__init__()
 		self.value = value
 	
 	def __str__(self):
 		return str(self.value)
-
-
 
 
 
