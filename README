@@ -1,0 +1,12 @@
+Works by
+
+  1. scrapping a file for
+       show
+       season
+       episode
+
+  2. normalizing show name using a show list from eztv
+  
+  3. retrieves the episode name from epguides.com
+  
+  4. renames and moves to the appropriate location
