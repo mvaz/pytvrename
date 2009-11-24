@@ -18,15 +18,13 @@ help_message = '''
 The help message goes here.
 '''
 
-TEST_DIR = os.path.join( os.path.abspath(os.path.dirname(__file__)), "test", "testdirectory")
+TEST_DIR     = os.path.join( os.path.abspath(os.path.dirname(__file__)), "test", "testdirectory")
 TORRENTS_DIR = os.path.join( TEST_DIR, "torrentsdir")
 MOVIE_DIR    = os.path.join( TEST_DIR, "moviedir")
 
 
 config = { 'outputdir': os.path.abspath('.'),
-           'pattern': "%(show)s/Season %(season)d/%(filename)s" }
-# dict = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
-
+           'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
 
 
@@ -93,9 +91,8 @@ def main(argv=None):
 			ep.title = ""
 
 		#
-
-		print ep.generateCorrectFilename()
-	
+		goal_path = config['pattern']  % {'show': ep.show, 'season': int(ep.season), 'filename': ep.generateCorrectFilename() }
+		print os.path.join( config['outputdir'], goal_path ) 
 		
 
 if __name__ == "__main__":
