@@ -106,7 +106,6 @@ def main(argv=None):
 		goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
 		
 		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
-		# print filename, origin_path, goal_path
 		
 		# make the goal path
 		mkdirp( os.path.dirname(goal_path) )

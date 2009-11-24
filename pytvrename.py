@@ -24,7 +24,7 @@ class EpisodeRenamer(object):
 		self.list = []
 	
 	@staticmethod
-	def normalizeShowTitleEZTV( showTitle ):
+	def normalizeShowTitleEpguides( showTitle ):
 		""" 
 		removes 
 		"""
@@ -58,6 +58,7 @@ class EpisodeRenamer(object):
 		if self.list == []:
 			self.__updateShowListEZTV()
 		zbr = difflib.get_close_matches( title, self.list, n=1 )
+		# print title
 		return zbr[0]
 	
 	
@@ -65,7 +66,7 @@ class EpisodeRenamer(object):
 		""" 
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
-		show = EpisodeRenamer.normalizeShowTitleEZTV( show )
+		show = EpisodeRenamer.normalizeShowTitleEpguides( show )
 		if not show in self.showCache:
 			try:
 				self.showCache['show'] = EpisodeRenamer.getPageOfShowFromEZTV( show )
@@ -92,9 +93,11 @@ class EpisodeRenamer(object):
 		Reads the epguides.com page of the show
 		and returns the title of a given episode and season
 		"""
-		
 		# 
-		page = self.getPageOfShow( episode.show )
+		try:
+			page = self.getPageOfShow( episode.show )
+		except ShowNotFoundError:
+			return ""
     
 	    # remove <script> stuff, because it breaks BeautifulSoup
 		p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
@@ -164,10 +167,25 @@ class Episode(object):
 	@staticmethod
 	def createEpisodeFromFilename( filename ):
 		""" """
-		reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<number>\d+)[\._ \-]"
-		reg = re.compile( reg, re.I | re.U )
-		zbr = reg.search( filename )
-		return Episode( zbr.group('show'), zbr.group('season'), zbr.group('number'), "" )
+		# reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d{1,2})[\._ \-]?[EeXx]?(?P<number>\d{1,2})[\._ \-]"
+		regs = [ "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]",
+		         "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]",
+		         "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]" ]
+		for reg in regs:
+			zbr = re.compile( reg, re.I | re.U ).search( filename )
+			try:
+				show = zbr.group('show')
+				season = zbr.group('season')
+				number = zbr.group('number')
+			except:
+				continue
+		# 
+		# # reg_canonical = re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]", re.I | re.U )
+		# # reg_withx     = re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]", re.I | re.U )
+		# # reg_numbers   = re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]", re.I | re.U )		
+		# reg = re.compile( reg, re.I | re.U )
+		# zbr = reg.search( filename )
+		return Episode( show, season, number )
 	
 	
 	def generateCorrectFilename(self, pattern = "%s S%02dE%02d %s.avi"):
