@@ -95,6 +95,8 @@ class EpisodeRenamer(object):
 		season = episode.season
 		number = episode.number
 		
+		print show, season, number
+		
 		page = EpisodeRenamer.getPageOfShow( show )
     
 	    # remove <script> stuff, because it breaks BeautifulSoup
@@ -106,11 +108,12 @@ class EpisodeRenamer(object):
 		page = soup.find(id="eplist").pre
     
 		# compile the regular expression
-		reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(number)2d|%(number)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'number': int(number) }
+		# reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(number)2d|%(number)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'number': int(number) }
+		reg = "^\s*\d+\.?\s+%(season)s-\s*(?:%(number)2d|%(number)02d)\s*[\w\d\/]{3,}\s*(.*$)" % {'season': str(season), 'number': int(number) }
 		reg = re.compile( reg, re.I | re.U )
-    
+		
 		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
-    
+		    
 		# split the page into different lines
 		for line in str(page).splitlines():
 			if reg.search( line ):
