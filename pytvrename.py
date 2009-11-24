@@ -119,8 +119,6 @@ class EpisodeRenamer(object):
 		else:
 			# TODO raise EpisodeNotFound exception
 			raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (number, season, show) )
-			# print "nothing found"
-			# title = ""
     
 		return title
 	
