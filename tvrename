@@ -1,10 +1,22 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+untitled.py
 
+Created by Miguel Vaz on 2009-11-24.
+Copyright (c) 2009 Universidade do Minho. All rights reserved.
+"""
+
+import sys
+import getopt
 import os
 import re
 
 from pytvrename import *
 
+help_message = '''
+The help message goes here.
+'''
 
 TEST_DIR = os.path.join( os.path.abspath(os.path.dirname(__file__)), "test", "testdirectory")
 TORRENTS_DIR = os.path.join( TEST_DIR, "torrentsdir")
@@ -20,27 +32,50 @@ def isMovieFile(filename):
 	reg = re.compile( ".*?.avi$", re.I | re.U )
 	return reg.match(filename)
 
+
+class Usage(Exception):
+	def __init__(self, msg):
+		self.msg = msg
+
+
+def main(argv=None):
+	if argv is None:
+		argv = sys.argv
+	try:
+		try:
+			opts, args = getopt.getopt(argv[1:], "ho:v", ["help", "output="])
+		except getopt.error, msg:
+			raise Usage(msg)
 	
-def main():
-	"""
-	docstring for main
-	"""
+		# option processing
+		for option, value in opts:
+			if option == "-v":
+				verbose = True
+			if option in ("-h", "--help"):
+				raise Usage(help_message)
+			if option in ("-o", "--output"):
+				output = value
+	
+	except Usage, err:
+		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+		print >> sys.stderr, "\t for help use --help"
+		return 2
 	
 	# list the directory
 	fileList = os.listdir(TORRENTS_DIR)
-	
+
 	# build the necessary objects
 	renamer = EpisodeRenamer()
-	
+
 	# list = ShowList()
 	# list.updateListEZTV()
-	
+
 	# go through every filenames in the list
 	for filename in fileList:
-		
+
 		if not isMovieFile( filename ):
 			continue
-		
+
 		# create the episode from the filename
 		ep = Episode.createEpisodeFromFilename( filename )
 		# set the show straight
@@ -50,33 +85,13 @@ def main():
 			ep.title = renamer.getEpisodeName( ep )
 		except EpisodeNotFound:
 			ep.title = ""
-		
+
 		#
-		
-		
+
+
 		print ep.generateCorrectFilename()
 	
+		
 
-#
 if __name__ == "__main__":
-    main()
-
-
-# base_path = '/SlugMedia/Videos/TV'
-# 
-# for show in os.listdir( base_path ):
-#     show_path = os.path.join( base_path, show )
-#     if not os.path.isdir( show_path ):
-#         continue
-# 
-#     expression = show + "\s*-\s*(?:Season|Series)\s*(\d)"
-#     pattern = re.compile( expression )
-# 
-#     for season in os.listdir( show_path ):
-#         m = re.match( pattern, season, re.IGNORECASE )
-#         if m:
-#             number = m.group(1)
-#             old = os.path.join( show_path, season )
-#             new = os.path.join( show_path, "Season " + number )
-#             #print old + " -> " + new
-#             os.rename( old, new )
+	sys.exit(main())
