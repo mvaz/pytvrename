@@ -46,18 +46,7 @@ def main():
 		try:
 			ep.title = EpisodeRenamer.getEpisodeName( ep )
 		except:
-			f = open('.workfile.tmp', 'w')
-			f.write( EpisodeRenamer.getPageOfShow( ep.show ) )
-			f.close()
-		
-		# filename = '.workfile.' + re.sub( '[\,\.\ ]', '', ep.show)
-		# print filename
-		# f = open( filename, 'w')
-		# f.write( EpisodeRenamer.getPageOfShow( ep.show ) )
-		# f.close()
-			
-		
-
+			ep.title = ""		
 		
 		print ep.generateCorrectFilename()
 	
