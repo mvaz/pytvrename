@@ -33,17 +33,23 @@ def main():
 	# list the directory
 	dirList = os.listdir(TORRENTS_DIR)
 	
+	# 
+	list = ShowList()
+	list.updateListEZTV()
+	
 	for filename in dirList:
 		if not isMovieFile( filename ):
 			continue
 		
 		ep = Episode.createEpisodeFromFilename( filename )
-		
-		EpisodeRenamer.getPageOfShow( ep.show )
+		ep.show = list.normalizeShowTitle( ep.show )
 		ep.title = EpisodeRenamer.getEpisodeName( ep )
+		
+
 		
 		print ep.generateCorrectFilename()
 	
+
 #
 if __name__ == "__main__":
     main()

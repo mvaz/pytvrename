@@ -9,6 +9,7 @@ Copyright (c) 2009. All rights reserved.
 
 import sys, os
 import urllib2, re
+import difflib
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 
 
@@ -36,9 +37,9 @@ class EpisodeRenamer(object):
 	@staticmethod
 	def normalizeShowTitleEZTV( showTitle ):
 		""" 
-		
+		removes 
 		"""
-		cleanShowTitle = re.sub( r'[\,\.]', '', showTitle)
+		cleanShowTitle = re.sub( r'[\,\.\'\;\"\ ]', '', showTitle)
 		cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
 		return cleanShowTitle
 	
@@ -54,13 +55,13 @@ class EpisodeRenamer(object):
 		html = html.decode('iso-8859-1')
 		return html
 	
+	
 	@staticmethod
 	def getPageOfShow( show ):
 		""" 
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
 		show = EpisodeRenamer.normalizeShowTitleEZTV( show )
-		print show
 		if not show in EpisodeRenamer.showCache:
 			try:
 				EpisodeRenamer.showCache['show'] = EpisodeRenamer.getPageOfShowFromEZTV( show )
@@ -82,14 +83,6 @@ class EpisodeRenamer(object):
 	
 		return liste
 
-	# @classmethod
-	# def getEpisodeName( episode ):
-	# 	""" 
-	# 	Reads the epguides.com page of the show
-	# 	and returns the title of a given episode and season
-	# 	"""
-	# 	return EpisodeRenamer.getEpisodeName( episode.show, episode.season, episode.episode )
-	
 
 	@staticmethod
 	def getEpisodeName( episode ):
@@ -149,11 +142,6 @@ class EpisodeNotFound(Exception):
 		return str(self.value)
 	
 
-def getEpisodeName( episode ):
-	"""
-	"""
-	
-	return getEpisodeName( episode.show, episode.season, episode.title )
 
 def getEpisodeName( show, season, episode ):
 	""" 
@@ -299,8 +287,8 @@ class ShowList(object):
 		
 	def normalizeShowTitle(self, title):
 		""" takes a string containing a title, and returns the most probable from the list """
-		# [\.\']
-		return title
+		zbr = difflib.get_close_matches( title, self.list, n=1 )
+		return zbr[0]
 	
 
 
