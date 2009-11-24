@@ -11,6 +11,8 @@ import sys
 import getopt
 import os
 import re
+import errno
+import shutil
 
 from pytvrename import *
 
@@ -18,12 +20,9 @@ help_message = '''
 The help message goes here.
 '''
 
-TEST_DIR     = os.path.join( os.path.abspath(os.path.dirname(__file__)), "test", "testdirectory")
-TORRENTS_DIR = os.path.join( TEST_DIR, "torrentsdir")
-MOVIE_DIR    = os.path.join( TEST_DIR, "moviedir")
-
 
 config = { 'outputdir': os.path.abspath('.'),
+           'inputdir': os.path.abspath('.'),
            'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
 
@@ -37,6 +36,14 @@ def isMovieFile(filename):
 	reg = re.compile( ".*?.avi$", re.I | re.U )
 	return reg.match(filename)
 
+def mkdirp(path):
+    try:
+        os.makedirs(path)
+    except OSError, exc:
+        if exc.errno == errno.EEXIST:
+            pass
+        else: raise
+
 
 class Usage(Exception):
 	def __init__(self, msg):
@@ -48,7 +55,7 @@ def main(argv=None):
 		argv = sys.argv
 	try:
 		try:
-			opts, args = getopt.getopt(argv[1:], "hop:v", ["help", "outputdir=","pattern="])
+			opts, args = getopt.getopt(argv[1:], "hopi:v", ["help", "outputdir=", "pattern=", 'inputdir='])
 		except getopt.error, msg:
 			raise Usage(msg)
 	
@@ -59,7 +66,9 @@ def main(argv=None):
 			if option in ("-h", "--help"):
 				raise Usage(help_message)
 			if option in ("-o", "--outputdir"):
-				config['outputdir'] = os.path.abspath(value)
+				config['outputdir'] = value
+			if option in ("-i", "--inputdir"):
+				config['inputdir'] = value
 			if option in ("-p", "--pattern"):
 				config['pattern'] = value
 			
@@ -69,7 +78,7 @@ def main(argv=None):
 		return 2
 	
 	# list the directory
-	fileList = os.listdir(TORRENTS_DIR)
+	fileList = os.listdir( config['inputdir'] )
 
 	# build the necessary objects
 	renamer = EpisodeRenamer()
@@ -90,9 +99,20 @@ def main(argv=None):
 		except EpisodeNotFound:
 			ep.title = ""
 
-		#
-		goal_path = config['pattern']  % {'show': ep.show, 'season': int(ep.season), 'filename': ep.generateCorrectFilename() }
-		print os.path.join( config['outputdir'], goal_path ) 
+		# make the output of the stuff
+		goal_path = config['pattern']  % { 'show': ep.show,
+		                                   'season': int(ep.season),
+		                                   'filename': ep.generateCorrectFilename() }
+		goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
+		
+		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
+		# print filename, origin_path, goal_path
+		
+		# make the goal path
+		mkdirp( os.path.dirname(goal_path) )
+		
+		# copy the file from origin to goal
+		shutil.copyfile( origin_path, goal_path )
 		
 
 if __name__ == "__main__":
