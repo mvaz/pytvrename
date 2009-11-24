@@ -23,6 +23,13 @@ TORRENTS_DIR = os.path.join( TEST_DIR, "torrentsdir")
 MOVIE_DIR    = os.path.join( TEST_DIR, "moviedir")
 
 
+config = { 'outputdir': os.path.abspath('.'),
+           'pattern': "%(show)s/Season %(season)d/%(filename)s" }
+# dict = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+
+
+
+
 def isMovieFile(filename):
 	"""
 	determines whether a given file is a movie file 
@@ -43,7 +50,7 @@ def main(argv=None):
 		argv = sys.argv
 	try:
 		try:
-			opts, args = getopt.getopt(argv[1:], "ho:v", ["help", "output="])
+			opts, args = getopt.getopt(argv[1:], "hop:v", ["help", "outputdir=","pattern="])
 		except getopt.error, msg:
 			raise Usage(msg)
 	
@@ -53,8 +60,11 @@ def main(argv=None):
 				verbose = True
 			if option in ("-h", "--help"):
 				raise Usage(help_message)
-			if option in ("-o", "--output"):
-				output = value
+			if option in ("-o", "--outputdir"):
+				config['outputdir'] = os.path.abspath(value)
+			if option in ("-p", "--pattern"):
+				config['pattern'] = value
+			
 	
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
@@ -87,7 +97,6 @@ def main(argv=None):
 			ep.title = ""
 
 		#
-
 
 		print ep.generateCorrectFilename()
 	
