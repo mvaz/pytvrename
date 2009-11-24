@@ -76,9 +76,8 @@ class EpisodeRenamer(object):
 		and returns the title of a given episode and season
 		"""
 		
-		show, season, number = episode.show, episode.season, episode.number
-		
-		page = self.getPageOfShow( show )
+		# 
+		page = self.getPageOfShow( episode.show )
     
 	    # remove <script> stuff, because it breaks BeautifulSoup
 		p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
