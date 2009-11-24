@@ -36,10 +36,12 @@ def main():
 	for filename in dirList:
 		if not isMovieFile( filename ):
 			continue
+		
 		ep = Episode.createEpisodeFromFilename( filename )
-		# print ep.show
+		
 		EpisodeRenamer.getPageOfShow( ep.show )
 		ep.title = EpisodeRenamer.getEpisodeName( ep )
+		
 		print ep.generateCorrectFilename()
 	
 #
