@@ -21,6 +21,7 @@ class EpisodeRenamer(object):
 	def __init__(self):
 		super(EpisodeRenamer, self).__init__()
 		self.showCache = dict()
+		self.list = []
 	
 	@staticmethod
 	def normalizeShowTitleEZTV( showTitle ):
@@ -42,6 +43,22 @@ class EpisodeRenamer(object):
 		html = response.read()
 		html = html.decode('iso-8859-1')
 		return html
+	
+	
+	def __updateShowListEZTV(self):
+		""" updates the list of tvshows from the eztv website """
+		showListURL = "http://ezrss.it/shows/"
+		html = urllib2.urlopen( showListURL ).read()
+		links = SoupStrainer('a', href=re.compile('show_name') )
+		self.list = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
+	
+	
+	def normalizeShowTitle(self, title):
+		""" takes a string containing a title, and returns the most probable from the list """
+		if self.list == []:
+			self.__updateShowListEZTV()
+		zbr = difflib.get_close_matches( title, self.list, n=1 )
+		return zbr[0]
 	
 	
 	def getPageOfShow( self, show ):

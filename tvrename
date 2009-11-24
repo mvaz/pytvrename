@@ -32,8 +32,8 @@ def main():
 	# build the necessary objects
 	renamer = EpisodeRenamer()
 	
-	list = ShowList()
-	list.updateListEZTV()
+	# list = ShowList()
+	# list.updateListEZTV()
 	
 	# go through every filenames in the list
 	for filename in fileList:
@@ -44,7 +44,7 @@ def main():
 		# create the episode from the filename
 		ep = Episode.createEpisodeFromFilename( filename )
 		# set the show straight
-		ep.show = list.normalizeShowTitle( ep.show )
+		ep.show = renamer.normalizeShowTitle( ep.show )
 		# get the title of the episode
 		try:
 			ep.title = renamer.getEpisodeName( ep )
