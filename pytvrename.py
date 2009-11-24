@@ -13,26 +13,14 @@ import difflib
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 
 
-# def getPageOfShow( show ):
-# 	""" 
-# 	Reads the epguides.com page of the show and returns the html contents 
-# 	"""
-# 	url = "http://epguides.com/" + show
-# 	response = urllib2.urlopen(url)
-# 	html = response.read()
-# 	html = html.decode('iso-8859-1')
-# 	return html
-
-
 class EpisodeRenamer(object):
 	"""
 	docstring for EpisodeRenamer
 	"""
 	
-	showCache = dict()
-	
 	def __init__(self):
 		super(EpisodeRenamer, self).__init__()
+		self.showCache = dict()
 	
 	@staticmethod
 	def normalizeShowTitleEZTV( showTitle ):
@@ -56,48 +44,41 @@ class EpisodeRenamer(object):
 		return html
 	
 	
-	@staticmethod
-	def getPageOfShow( show ):
+	def getPageOfShow( self, show ):
 		""" 
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
 		show = EpisodeRenamer.normalizeShowTitleEZTV( show )
-		if not show in EpisodeRenamer.showCache:
+		if not show in self.showCache:
 			try:
-				EpisodeRenamer.showCache['show'] = EpisodeRenamer.getPageOfShowFromEZTV( show )
+				self.showCache['show'] = EpisodeRenamer.getPageOfShowFromEZTV( show )
 			except:
 				raise ShowNotFoundError("show name '%s' not recognized by eztv" % (show) )
 		
-		return EpisodeRenamer.showCache['show']
+		return self.showCache['show']
 
 
-	@classmethod
-	def getShowList( ):
+	def getShowList( self ):
 		"""docstring for getShowList"""
 		showListURL = "http://ezrss.it/shows/"
 		# download page
 		html = urllib2.urlopen( showListURL ).read()
-	
+		
 		links = SoupStrainer('a', href=re.compile('show_name') )
 		liste = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
-	
+		
 		return liste
-
-
-	@staticmethod
-	def getEpisodeName( episode ):
+	
+	
+	def getEpisodeName( self, episode ):
 		""" 
 		Reads the epguides.com page of the show
 		and returns the title of a given episode and season
 		"""
 		
-		show = episode.show
-		season = episode.season
-		number = episode.number
+		show, season, number = episode.show, episode.season, episode.number
 		
-		print show, season, number
-		
-		page = EpisodeRenamer.getPageOfShow( show )
+		page = self.getPageOfShow( show )
     
 	    # remove <script> stuff, because it breaks BeautifulSoup
 		p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
@@ -108,8 +89,7 @@ class EpisodeRenamer(object):
 		page = soup.find(id="eplist").pre
     
 		# compile the regular expression
-		# reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(number)2d|%(number)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'number': int(number) }
-		reg = "^\s*\d+\.?\s+%(season)s-\s*(?:%(number)2d|%(number)02d)\s*[\w\d\/]{3,}\s*(.*$)" % {'season': str(season), 'number': int(number) }
+		reg = "^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*[\w\d\/]{3,}\s*(.*$)" % {'season': int(episode.season), 'number': int(episode.number) }
 		reg = re.compile( reg, re.I | re.U )
 		
 		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
@@ -121,7 +101,7 @@ class EpisodeRenamer(object):
 				break
 		else:
 			# TODO raise EpisodeNotFound exception
-			raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (number, season, show) )
+			raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (episode.number, episode.season, episode.show) )
     
 		return title
 	
@@ -139,102 +119,12 @@ class EpisodeNotFound(Exception):
 	def __init__(self, value):
 		super(EpisodeNotFound, self).__init__()
 		self.value = value
+	
 	def __str__(self):
 		return str(self.value)
-	
-
-
-def getEpisodeName( show, season, episode ):
-	""" 
-	Reads the epguides.com page of the show
-	and returns the title of a given episode and season
-	"""
-	page = getPageOfShow( show )
-
-    # remove <script> stuff, because it breaks BeautifulSoup
-	p = re.compile('<div\s*id=\"(footer)\".*?<\/div>', re.IGNORECASE | re.DOTALL | re.U) 
-	html = p.sub( "", page)
-	# parse the page
-	soup = BeautifulSoup(html)
-	# find the part that has the episode list
-	page = soup.find(id="eplist").pre
-
-	# compile the regular expression
-	reg = "\s*\d+\.?\s+%(season)s-\s*(?:%(episode)2d|%(episode)02d)\s*[\w\d]{3,}\s*(.*$)" % {'season': str(season), 'episode': int(episode) }
-	reg = re.compile( reg, re.I | re.U )
-
-	reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
-
-	# split the page into different lines
-	for line in str(page).splitlines():
-		if reg.search( line ):
-			title = reg2.search( line ).group(1)
-			break
-	else:
-		# TODO raise EpisodeNotFound exception
-		raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (episode, season, show) )
-		# print "nothing found"
-		# title = ""
-
-	return title
 
 
 
-def scrapeFilename( filename ):
-	""" takes the filename and returns the show, episode and season """
-	reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<episode>\d+)[\._ \-]"
-	reg = re.compile( reg, re.I | re.U )
-	result = reg.search( filename )
-	return result.groupdict()
-
-
-def normalizeShowName( show ):
-	""" several possibilities for this:
-	  - list + levenshtein
-	  - guess it from epguides
-	"""
-	show = re.sub( r'#.*$', "", show)
-	return show
-	# 1 regularize filename
-
-
-
-
-def generateCorrectFilename( show, season, episode, title ):
-	return "%s S%dE%d %s" % [ show, season, episode, title ]
-	# return show + "-" + str(season) + str(episode) + title
-
-
-def finalPath( baseDir, show, season, fileName):
-	return "%s/%s/Season %s/%s" % [ baseDir, show, season, fileName ]
-
-
-
-
-def levenshtein(s1, s2):
-	if len(s1) < len(s2):
-		return levenshtein(s2, s1)
-	if not s1:
-		return len(s2)
-
-	previous_row = xrange(len(s2) + 1)
-	for i, c1 in enumerate(s1):
-		current_row = [i + 1]
-		for j, c2 in enumerate(s2):
-			insertions = previous_row[j + 1] + 1
-			deletions = current_row[j] + 1
-			substitutions = previous_row[j] + (c1 != c2)
-			current_row.append(min(insertions, deletions, substitutions))
-		previous_row = current_row
-
-	return previous_row[-1]
-
-
-
-
-##############################################################################
-#                             NEW STUFF                                      #
-##############################################################################
 
 
 
@@ -291,6 +181,63 @@ class ShowList(object):
 		zbr = difflib.get_close_matches( title, self.list, n=1 )
 		return zbr[0]
 	
+
+##############################################################################
+#                             OLD STUFF                                      #
+##############################################################################
+
+
+
+
+
+# def scrapeFilename( filename ):
+# 	""" takes the filename and returns the show, episode and season """
+# 	reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d+)[\._ \-]?[EeXx]?(?P<episode>\d+)[\._ \-]"
+# 	reg = re.compile( reg, re.I | re.U )
+# 	result = reg.search( filename )
+# 	return result.groupdict()
+# 
+# 
+# def normalizeShowName( show ):
+# 	""" several possibilities for this:
+# 	  - list + levenshtein
+# 	  - guess it from epguides
+# 	"""
+# 	show = re.sub( r'#.*$', "", show)
+# 	return show
+# 	# 1 regularize filename
+# 
+# 
+# 
+# 
+# def generateCorrectFilename( show, season, episode, title ):
+# 	return "%s S%dE%d %s" % [ show, season, episode, title ]
+# 	# return show + "-" + str(season) + str(episode) + title
+# 
+# 
+# def finalPath( baseDir, show, season, fileName):
+# 	return "%s/%s/Season %s/%s" % [ baseDir, show, season, fileName ]
+# 
+# 
+# 
+# 
+# def levenshtein(s1, s2):
+# 	if len(s1) < len(s2):
+# 		return levenshtein(s2, s1)
+# 	if not s1:
+# 		return len(s2)
+# 
+# 	previous_row = xrange(len(s2) + 1)
+# 	for i, c1 in enumerate(s1):
+# 		current_row = [i + 1]
+# 		for j, c2 in enumerate(s2):
+# 			insertions = previous_row[j + 1] + 1
+# 			deletions = current_row[j] + 1
+# 			substitutions = previous_row[j] + (c1 != c2)
+# 			current_row.append(min(insertions, deletions, substitutions))
+# 		previous_row = current_row
+# 
+# 	return previous_row[-1]
 
 
 

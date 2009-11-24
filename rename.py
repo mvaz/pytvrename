@@ -25,28 +25,31 @@ def main():
 	"""
 	docstring for main
 	"""
-	# sl = ShowList()
-	# sl.updateListEZTV()
-
-	# renamer = EpisodeRenamer()
-
+	
 	# list the directory
 	dirList = os.listdir(TORRENTS_DIR)
 	
-	# 
+	# build the necessary objects
+	renamer = EpisodeRenamer()
+	
 	list = ShowList()
 	list.updateListEZTV()
 	
+	# 
 	for filename in dirList:
+		
 		if not isMovieFile( filename ):
 			continue
 		
+		# create the episode from the filename
 		ep = Episode.createEpisodeFromFilename( filename )
+		# set the show title
 		ep.show = list.normalizeShowTitle( ep.show )
+		
 		try:
-			ep.title = EpisodeRenamer.getEpisodeName( ep )
-		except:
-			ep.title = ""		
+			ep.title = renamer.getEpisodeName( ep )
+		except EpisodeNotFound:
+			ep.title = ""
 		
 		print ep.generateCorrectFilename()
 	
