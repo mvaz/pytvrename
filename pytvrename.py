@@ -23,6 +23,7 @@ class EpisodeRenamer(object):
 		self.showCache = dict()
 		self.list = []
 	
+	
 	@staticmethod
 	def normalizeShowTitleEpguides( showTitle ):
 		""" 
@@ -31,6 +32,7 @@ class EpisodeRenamer(object):
 		cleanShowTitle = re.sub( r'[\,\.\'\;\"\ ]', '', showTitle)
 		cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
 		return cleanShowTitle
+	
 	
 	@staticmethod
 	def normalizeShowTitleEpguidesCase2( showTitle ):
@@ -48,19 +50,20 @@ class EpisodeRenamer(object):
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
 		cleanShow = EpisodeRenamer.normalizeShowTitleEpguides( show )
-		print show, cleanShow
+		# print show, cleanShow
 		try:
 			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		except:
 			cleanShow = EpisodeRenamer.normalizeShowTitleEpguidesCase2( show )
-			print cleanShow
+			# print cleanShow
 			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		
 		html = response.read()
 		html = html.decode('iso-8859-1')
 		return html
+	
 	
 	def __updateShowListEZTV(self):
 		""" updates the list of tvshows from the eztv website """
@@ -90,7 +93,7 @@ class EpisodeRenamer(object):
 				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )
 			except:
 				# TODO try another normalization of the show?
-				print "show not found"
+				# print "show not found"
 				raise ShowNotFoundError("show name '%s' not recognized by eztv" % (show) )
 		
 		return self.showCache[show]

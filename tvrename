@@ -87,7 +87,7 @@ def main(argv=None):
 			
 		
 		print args
-		return 0
+		# return 0
 			
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
@@ -128,9 +128,13 @@ def main(argv=None):
 		# make the goal path
 		mkdirp( os.path.dirname(goal_path) )
 		
-		# copy the file from origin to goal
-		shutil.copyfile( origin_path, goal_path )
-		
+		# copy or move the file from origin to goal
+		if config['move']:
+			print "move"
+			shutil.copyfile( origin_path, goal_path )
+		else:
+			print "copy"
+			shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
 	sys.exit(main())
