@@ -34,7 +34,7 @@ class EpisodeRenamer(object):
 	
 	
 	@staticmethod
-	def getPageOfShowFromEZTV( show ):
+	def getPageOfShowFromEpguides( show ):
 		""" 
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
@@ -58,7 +58,6 @@ class EpisodeRenamer(object):
 		if self.list == []:
 			self.__updateShowListEZTV()
 		zbr = difflib.get_close_matches( title, self.list, n=1 )
-		# print title
 		return zbr[0]
 	
 	
@@ -69,8 +68,9 @@ class EpisodeRenamer(object):
 		show = EpisodeRenamer.normalizeShowTitleEpguides( show )
 		if not show in self.showCache:
 			try:
-				self.showCache['show'] = EpisodeRenamer.getPageOfShowFromEZTV( show )
+				self.showCache['show'] = EpisodeRenamer.getPageOfShowFromEpguides( show )
 			except:
+				# TODO try another normalization of the show?
 				raise ShowNotFoundError("show name '%s' not recognized by eztv" % (show) )
 		
 		return self.showCache['show']
