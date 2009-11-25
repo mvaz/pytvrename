@@ -88,7 +88,8 @@ def main(argv=None):
 			if option in ("-m", "--move"):
 				config['move'] = True
 			
-				
+		print config['outputdir']
+		
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
 		print >> sys.stderr, "\t for help use --help"
