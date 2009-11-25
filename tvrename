@@ -116,6 +116,7 @@ def main(argv=None):
 		ep = Episode.createEpisodeFromFilename( filename )
 		# set the show straight
 		ep.show = renamer.normalizeShowTitle( ep.show )
+		print ep.show
 		# get the title of the episode
 		try:
 			ep.title = renamer.getEpisodeName( ep )
@@ -136,11 +137,12 @@ def main(argv=None):
 		
 		# copy or move the file from origin to goal
 		if config['move']:
-			# print "move"
+			#print "move '%s' %s'" % (origin_path, goal_path)
 			shutil.move( origin_path, goal_path )
 		else:
 			# print "copy"
-			shutil.copyfile( origin_path, goal_path )
+			print "copy '%s' %s'" % (origin_path, goal_path)
+			#shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
 	sys.exit(main())
