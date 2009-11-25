@@ -69,7 +69,7 @@ def main(argv=None):
 		argv = sys.argv
 	try:
 		try:
-			opts, args = getopt.getopt( argv[1:], "hopim:v", ["help", "outputdir=", "pattern=", 'inputdir=', "move"] )
+			opts, args = getopt.getopt( argv[1:], "mho:p:i:v", ["help", "outputdir=", "pattern=", 'inputdir='] )
 		except getopt.error, msg:
 			raise Usage(msg)
 	
@@ -81,6 +81,7 @@ def main(argv=None):
 				raise Usage(help_message)
 			if option in ("-o", "--outputdir"):
 				config['outputdir'] = value
+				print "outputdir"
 			if option in ("-i", "--inputdir"):
 				config['inputdir'] = value
 			if option in ("-p", "--pattern"):
