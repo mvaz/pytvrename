@@ -10,3 +10,8 @@ Works by
   3. retrieves the episode name from epguides.com
   
   4. renames and moves to the appropriate location
+
+
+Dependencies
+
+BeautifulSoup
