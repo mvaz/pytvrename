@@ -81,7 +81,6 @@ def main(argv=None):
 				raise Usage(help_message)
 			if option in ("-o", "--outputdir"):
 				config['outputdir'] = value
-				print "outputdir"
 			if option in ("-i", "--inputdir"):
 				config['inputdir'] = value
 			if option in ("-p", "--pattern"):
@@ -89,8 +88,6 @@ def main(argv=None):
 			if option in ("-m", "--move"):
 				config['move'] = True
 			
-		print config['outputdir']
-		
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
 		print >> sys.stderr, "\t for help use --help"
@@ -139,10 +136,10 @@ def main(argv=None):
 		# copy or move the file from origin to goal
 		if config['move']:
 			print "move '%s' '%s'" % ( origin_path, goal_path)
-			# shutil.move( origin_path, goal_path )
+			shutil.move( origin_path, goal_path )
 		else:
 			print "copy '%s' '%s'" % ( origin_path, goal_path)
-			# shutil.copyfile( origin_path, goal_path )
+			shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
 	sys.exit(main())
