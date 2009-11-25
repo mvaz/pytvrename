@@ -48,19 +48,19 @@ class EpisodeRenamer(object):
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
 		cleanShow = EpisodeRenamer.normalizeShowTitleEpguides( show )
+		print show, cleanShow
 		try:
-			url = "http://epguides.com/%s" % (show)
+			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		except:
-			print "something didn't go so well"
 			cleanShow = EpisodeRenamer.normalizeShowTitleEpguidesCase2( show )
-			url = "http://epguides.com/%s" % (show)
+			print cleanShow
+			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		
 		html = response.read()
 		html = html.decode('iso-8859-1')
 		return html
-	
 	
 	def __updateShowListEZTV(self):
 		""" updates the list of tvshows from the eztv website """
@@ -77,25 +77,23 @@ class EpisodeRenamer(object):
 		zbr = difflib.get_close_matches( title, self.list, n=1 )
 		# FIXME check if this really works
 		return zbr[0]
-		# try: 
-		# 	return zbr[0]
-		# except:
-		# 	return title
-	
+		
 	
 	def getPageOfShow( self, show ):
 		""" 
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
-		show = EpisodeRenamer.normalizeShowTitleEpguides( show )
+		# show = EpisodeRenamer.normalizeShowTitleEpguides( show )
+		# print show
 		if not show in self.showCache:
 			try:
-				self.showCache['show'] = EpisodeRenamer.getPageOfShowFromEpguides( show )
+				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )
 			except:
 				# TODO try another normalization of the show?
+				print "show not found"
 				raise ShowNotFoundError("show name '%s' not recognized by eztv" % (show) )
 		
-		return self.showCache['show']
+		return self.showCache[show]
 
 
 	def getShowList( self ):
@@ -131,7 +129,7 @@ class EpisodeRenamer(object):
 		page = soup.find(id="eplist").pre
     
 		# compile the regular expression
-		reg = "^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*[\w\d\/]{3,}\s*(.*$)" % {'season': int(episode.season), 'number': int(episode.number) }
+		reg = "^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*[\w\d\/]{2,}\s*(.*$)" % {'season': int(episode.season), 'number': int(episode.number) }
 		reg = re.compile( reg, re.I | re.U )
 		
 		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
@@ -142,14 +140,15 @@ class EpisodeRenamer(object):
 				title = reg2.search( line ).group(1)
 				break
 		else:
-			# TODO raise EpisodeNotFound exception
-			raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (episode.number, episode.season, episode.show) )
+			# TODO raise EpisodeNotFoundError exception
+			# print "EpisodeNotFoundError: " + str(episode)
+			raise EpisodeNotFoundError("Episode %d, of season %d, of show %s not found" % (episode.number, episode.season, episode.show) )
 		
 		return title
 	
 
 class ShowNotFoundError(Exception):
-	""" docstring for EpisodeNotFound """
+	""" docstring for EpisodeNotFoundError """
 	def __init__(self,value):
 		self.value = value
 	
@@ -159,10 +158,10 @@ class ShowNotFoundError(Exception):
 
 
 
-class EpisodeNotFound(Exception):
-	""" docstring for EpisodeNotFound """
+class EpisodeNotFoundError(Exception):
+	""" docstring for EpisodeNotFoundError """
 	def __init__(self, value):
-		super(EpisodeNotFound, self).__init__()
+		super(EpisodeNotFoundError, self).__init__()
 		self.value = value
 	
 	def __str__(self):

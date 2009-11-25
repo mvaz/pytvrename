@@ -99,8 +99,8 @@ def main(argv=None):
 		# get the title of the episode
 		try:
 			ep.title = renamer.getEpisodeName( ep )
-		except EpisodeNotFound:
-			print "zbr"
+		except EpisodeNotFoundError:
+			print "EpisodeNotFoundError"
 			ep.title = ""
 
 		# make the output of the stuff
