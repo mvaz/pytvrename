@@ -69,7 +69,7 @@ def main(argv=None):
 		argv = sys.argv
 	try:
 		try:
-			opts, args = getopt.getopt( argv[1:], "hopim:v", ["help", "move", "outputdir=", "pattern=", 'inputdir='] )
+			opts, args = getopt.getopt( argv[1:], "hopim:v", ["help", "outputdir=", "pattern=", 'inputdir=', "move"] )
 		except getopt.error, msg:
 			raise Usage(msg)
 	
@@ -136,11 +136,11 @@ def main(argv=None):
 		
 		# copy or move the file from origin to goal
 		if config['move']:
-			# print "move"
-			shutil.move( origin_path, goal_path )
+			print "move '%s' '%s'" % ( origin_path, goal_path)
+			# shutil.move( origin_path, goal_path )
 		else:
-			# print "copy"
-			shutil.copyfile( origin_path, goal_path )
+			print "copy '%s' '%s'" % ( origin_path, goal_path)
+			# shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
 	sys.exit(main())
