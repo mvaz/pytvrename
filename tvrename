@@ -17,12 +17,20 @@ import shutil
 from pytvrename import *
 
 help_message = '''
-The help message goes here.
+Usage:
+   tvrename --outputdir=/media/tv --inputdir=.
+or
+   tvrename --outputdir=/media/tv this.show.s03e01.whatever.xvid.avi
+
+Options:
+   --pattern=
+   --move
 '''
 
 
 config = { 'outputdir': os.path.abspath('.'),
            'inputdir': os.path.abspath('.'),
+           'move': False,
            'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
 
@@ -58,7 +66,7 @@ def main(argv=None):
 		argv = sys.argv
 	try:
 		try:
-			opts, args = getopt.getopt(argv[1:], "hopi:v", ["help", "outputdir=", "pattern=", 'inputdir='])
+			opts, args = getopt.getopt( argv[1:], "hopim:v", ["help", "move", "outputdir=", "pattern=", 'inputdir='] )
 		except getopt.error, msg:
 			raise Usage(msg)
 	
@@ -74,6 +82,12 @@ def main(argv=None):
 				config['inputdir'] = value
 			if option in ("-p", "--pattern"):
 				config['pattern'] = value
+			if option in ("-m", "--move"):
+				config['move'] = True
+			
+		
+		print args
+		return 0
 			
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
@@ -108,7 +122,7 @@ def main(argv=None):
 		                                   'season': int(ep.season),
 		                                   'filename': ep.generateCorrectFilename() }
 		goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
-		
+		# generate the path of the filename 
 		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
 		
 		# make the goal path
