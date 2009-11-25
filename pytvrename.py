@@ -26,20 +26,37 @@ class EpisodeRenamer(object):
 	@staticmethod
 	def normalizeShowTitleEpguides( showTitle ):
 		""" 
-		removes 
+		removes every ,.;:'" and The at the beginning
 		"""
 		cleanShowTitle = re.sub( r'[\,\.\'\;\"\ ]', '', showTitle)
 		cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
 		return cleanShowTitle
 	
+	@staticmethod
+	def normalizeShowTitleEpguidesCase2( showTitle ):
+		""" 
+		for the moment, this is just a hack, thought for the case of V2009
+		"""
+		cleanShowTitle = re.sub( r'[\,\.\'\;\"\ ]', '_', showTitle)
+		# cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
+		return cleanShowTitle
+
 	
 	@staticmethod
 	def getPageOfShowFromEpguides( show ):
 		""" 
 		Reads the epguides.com page of the show and returns the html contents 
 		"""
-		url = "http://epguides.com/%s" % (show)
-		response = urllib2.urlopen(url)
+		cleanShow = EpisodeRenamer.normalizeShowTitleEpguides( show )
+		try:
+			url = "http://epguides.com/%s" % (show)
+			response = urllib2.urlopen(url)
+		except:
+			print "something didn't go so well"
+			cleanShow = EpisodeRenamer.normalizeShowTitleEpguidesCase2( show )
+			url = "http://epguides.com/%s" % (show)
+			response = urllib2.urlopen(url)
+		
 		html = response.read()
 		html = html.decode('iso-8859-1')
 		return html
@@ -58,7 +75,12 @@ class EpisodeRenamer(object):
 		if self.list == []:
 			self.__updateShowListEZTV()
 		zbr = difflib.get_close_matches( title, self.list, n=1 )
+		# FIXME check if this really works
 		return zbr[0]
+		# try: 
+		# 	return zbr[0]
+		# except:
+		# 	return title
 	
 	
 	def getPageOfShow( self, show ):
@@ -97,6 +119,7 @@ class EpisodeRenamer(object):
 		try:
 			page = self.getPageOfShow( episode.show )
 		except ShowNotFoundError:
+			# report that something may have gone wrong
 			return ""
     
 	    # remove <script> stuff, because it breaks BeautifulSoup
@@ -121,7 +144,7 @@ class EpisodeRenamer(object):
 		else:
 			# TODO raise EpisodeNotFound exception
 			raise EpisodeNotFound("Episode %d, of season %d, of show %s not found" % (episode.number, episode.season, episode.show) )
-    
+		
 		return title
 	
 
@@ -168,15 +191,15 @@ class Episode(object):
 	def createEpisodeFromFilename( filename ):
 		""" """
 		# reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d{1,2})[\._ \-]?[EeXx]?(?P<number>\d{1,2})[\._ \-]"
-		regs = [ "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]",
-		         "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]",
-		         "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]" ]
+		regs = [ re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
+		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
+		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]", re.I | re.U) ]
 		for reg in regs:
-			zbr = re.compile( reg, re.I | re.U ).search( filename )
+			reg = reg.search( filename )
 			try:
-				show = zbr.group('show')
-				season = zbr.group('season')
-				number = zbr.group('number')
+				show   = reg.group('show')
+				season = reg.group('season')
+				number = reg.group('number')
 			except:
 				continue
 		# 

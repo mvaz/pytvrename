@@ -37,12 +37,15 @@ def isMovieFile(filename):
 	return reg.match(filename)
 
 def mkdirp(path):
-    try:
-        os.makedirs(path)
-    except OSError, exc:
-        if exc.errno == errno.EEXIST:
-            pass
-        else: raise
+	"""
+	replicates functionality of mkdir -p
+	"""
+	try:
+		os.makedirs(path)
+	except OSError, exc:
+		if exc.errno == errno.EEXIST:
+			pass
+		else: raise
 
 
 class Usage(Exception):
@@ -97,6 +100,7 @@ def main(argv=None):
 		try:
 			ep.title = renamer.getEpisodeName( ep )
 		except EpisodeNotFound:
+			print "zbr"
 			ep.title = ""
 
 		# make the output of the stuff
