@@ -115,7 +115,6 @@ def main(argv=None):
 		ep = Episode.createEpisodeFromFilename( filename )
 		# set the show straight
 		ep.show = renamer.normalizeShowTitle( ep.show )
-		print ep.show
 		# get the title of the episode
 		try:
 			ep.title = renamer.getEpisodeName( ep )
