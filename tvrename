@@ -40,12 +40,9 @@ config = { 'outputdir': os.path.abspath('.'),
 
 # create the logging objects
 log = logging.getLogger('pytvrename')
-# log.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler()
+ch  = logging.StreamHandler()
 # create formatter and add it to the handlers
 ch.setFormatter( logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s") )
-ch.setLevel( logging.INFO )
 # add the handlers to the logger
 log.addHandler(ch)
 
@@ -81,7 +78,7 @@ def main(argv=None):
 		argv = sys.argv
 	try:
 		try:
-			opts, args = getopt.getopt( argv[1:], "mho:p:i:v", ["help", "outputdir=", "pattern=", 'inputdir='] )
+			opts, args = getopt.getopt( argv[1:], "mho:p:i:vd", ["help", "outputdir=", "pattern=", 'inputdir=', 'debug'] )
 		except getopt.error, msg:
 			raise Usage(msg)
 	
@@ -89,6 +86,10 @@ def main(argv=None):
 		for option, value in opts:
 			if option == "-v":
 				log.setLevel( logging.INFO )
+				ch.setLevel( logging.INFO )
+			if option in ("-d", "--debug"):
+				log.setLevel( logging.DEBUG )
+				ch.setLevel( logging.DEBUG )
 			if option in ("-h", "--help"):
 				raise Usage(help_message)
 			if option in ("-o", "--outputdir"):
@@ -112,7 +113,7 @@ def main(argv=None):
 	else:
 		fileList = os.listdir( config['inputdir'] )
 	
-	log.info( "files to be processed: " + str(fileList) )
+	# log.info( "files to be processed: " + str(fileList) )
 	# build the necessary objects
 	renamer = EpisodeRenamer()
 
