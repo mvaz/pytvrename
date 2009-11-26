@@ -38,11 +38,8 @@ config = { 'outputdir': os.path.abspath('.'),
            'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
 # create the logging
-log = logging.getLogger('tvrename')
+log = logging.getLogger('pytvrename')
 log.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-log.addHandler(ch)
 
 
 def isMovieFile(filename):
@@ -106,10 +103,7 @@ def main(argv=None):
 		fileList = args
 	else:
 		fileList = os.listdir( config['inputdir'] )
-	# 
-	# log.info( "filelist" )		
-	# print fileList
-
+	
 	# build the necessary objects
 	renamer = EpisodeRenamer()
 

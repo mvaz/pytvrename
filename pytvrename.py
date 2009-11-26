@@ -8,10 +8,21 @@ Copyright (c) 2009. All rights reserved.
 """
 
 import sys, os
-import urllib2, re
-import difflib
+import re, difflib
+import urllib2
 from BeautifulSoup import BeautifulSoup, SoupStrainer
+import logging
 
+
+# define a do nothing handler
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+# initialize the loggers
+h = NullHandler()
+logging.getLogger("pytvrename").addHandler(h)
+# logging.getLogger("pytvrename").setLevel( logging.INFO )
 
 class EpisodeRenamer(object):
 	"""
@@ -88,6 +99,7 @@ class EpisodeRenamer(object):
 		"""
 		# show = EpisodeRenamer.normalizeShowTitleEpguides( show )
 		# print show
+		logging.info("false alarm")
 		if not show in self.showCache:
 			try:
 				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )
