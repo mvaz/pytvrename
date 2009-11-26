@@ -8,10 +8,21 @@ Copyright (c) 2009. All rights reserved.
 """
 
 import sys, os
-import urllib2, re
-import difflib
+import re, difflib
+import urllib2
 from BeautifulSoup import BeautifulSoup, SoupStrainer
+import logging
 
+
+# define a do nothing handler
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+# initialize the loggers
+# h = NullHandler()
+# logging.getLogger("pytvrename").addHandler(h)
+# logging.getLogger("pytvrename").setLevel( logging.INFO )
 
 class EpisodeRenamer(object):
 	"""
@@ -22,7 +33,12 @@ class EpisodeRenamer(object):
 		super(EpisodeRenamer, self).__init__()
 		self.showCache = dict()
 		self.list = []
-	
+		self.log  = logging.getLogger("pytvrename.EpisodeRenamer")
+		self.log.addHandler( NullHandler() )
+		# self.log.info("creating an instance")
+		# self.logger = 
+		#         self.logger.info("creating an instance of Auxiliary")
+		
 	
 	@staticmethod
 	def normalizeShowTitleEpguides( showTitle ):
@@ -55,6 +71,7 @@ class EpisodeRenamer(object):
 			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		except:
+			self.log.debug("conversion from '%s' to '%s' failed... trying second" % (show, cleanShow))
 			cleanShow = EpisodeRenamer.normalizeShowTitleEpguidesCase2( show )
 			# print cleanShow
 			url = "http://epguides.com/%s" % (cleanShow)
@@ -93,8 +110,7 @@ class EpisodeRenamer(object):
 				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )
 			except:
 				# TODO try another normalization of the show?
-				# print "show not found"
-				raise ShowNotFoundError("show name '%s' not recognized by eztv" % (show) )
+				raise ShowNotFoundError("show name '%s' not recognized by epguides" % (show) )
 		
 		return self.showCache[show]
 
@@ -121,6 +137,7 @@ class EpisodeRenamer(object):
 			page = self.getPageOfShow( episode.show )
 		except ShowNotFoundError:
 			# report that something may have gone wrong
+			self.log.warn( "show name '%s' not recognized by epguides" % (episode.show) )
 			return ""
     
 	    # remove <script> stuff, because it breaks BeautifulSoup

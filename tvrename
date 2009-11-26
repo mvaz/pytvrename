@@ -13,6 +13,7 @@ import os
 import re
 import errno
 import shutil
+import logging
 
 from pytvrename import *
 
@@ -36,6 +37,17 @@ config = { 'outputdir': os.path.abspath('.'),
            'move': False,
            'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
+
+# create the logging objects
+log = logging.getLogger('pytvrename')
+# log.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler()
+# create formatter and add it to the handlers
+ch.setFormatter( logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s") )
+ch.setLevel( logging.INFO )
+# add the handlers to the logger
+log.addHandler(ch)
 
 
 def isMovieFile(filename):
@@ -76,7 +88,7 @@ def main(argv=None):
 		# option processing
 		for option, value in opts:
 			if option == "-v":
-				verbose = True
+				log.setLevel( logging.INFO )
 			if option in ("-h", "--help"):
 				raise Usage(help_message)
 			if option in ("-o", "--outputdir"):
@@ -88,6 +100,7 @@ def main(argv=None):
 			if option in ("-m", "--move"):
 				config['move'] = True
 			
+		
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
 		print >> sys.stderr, "\t for help use --help"
@@ -98,14 +111,13 @@ def main(argv=None):
 		fileList = args
 	else:
 		fileList = os.listdir( config['inputdir'] )
-
+	
+	log.info( "files to be processed: " + str(fileList) )
 	# build the necessary objects
 	renamer = EpisodeRenamer()
 
 	# go through every filenames in the list
 	for filename in fileList:
-
-
         # 1 check whether the file exists
         # 2 check whether
 		if not isMovieFile( filename ):
@@ -135,10 +147,10 @@ def main(argv=None):
 		
 		# copy or move the file from origin to goal
 		if config['move']:
-			print "move '%s' '%s'" % ( origin_path, goal_path)
+			log.info( "move '%s' '%s'" % ( origin_path, goal_path) )
 			shutil.move( origin_path, goal_path )
 		else:
-			print "copy '%s' '%s'" % ( origin_path, goal_path)
+			log.info( "copy '%s' '%s'" % ( origin_path, goal_path) )
 			shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
