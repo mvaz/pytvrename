@@ -71,6 +71,7 @@ class EpisodeRenamer(object):
 			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		except:
+			self.log.debug("conversion from '%s' to '%s' failed... trying second" % (show, cleanShow))
 			cleanShow = EpisodeRenamer.normalizeShowTitleEpguidesCase2( show )
 			# print cleanShow
 			url = "http://epguides.com/%s" % (cleanShow)
@@ -104,14 +105,12 @@ class EpisodeRenamer(object):
 		"""
 		# show = EpisodeRenamer.normalizeShowTitleEpguides( show )
 		# print show
-		self.log.warn("false alarm")
 		if not show in self.showCache:
 			try:
 				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )
 			except:
 				# TODO try another normalization of the show?
-				# print "show not found"
-				raise ShowNotFoundError("show name '%s' not recognized by eztv" % (show) )
+				raise ShowNotFoundError("show name '%s' not recognized by epguides" % (show) )
 		
 		return self.showCache[show]
 
@@ -138,6 +137,7 @@ class EpisodeRenamer(object):
 			page = self.getPageOfShow( episode.show )
 		except ShowNotFoundError:
 			# report that something may have gone wrong
+			self.log.warn( "show name '%s' not recognized by epguides" % (episode.show) )
 			return ""
     
 	    # remove <script> stuff, because it breaks BeautifulSoup

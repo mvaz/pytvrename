@@ -40,11 +40,12 @@ config = { 'outputdir': os.path.abspath('.'),
 
 # create the logging objects
 log = logging.getLogger('pytvrename')
-log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()
 # create formatter and add it to the handlers
 ch.setFormatter( logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s") )
+ch.setLevel( logging.INFO )
 # add the handlers to the logger
 log.addHandler(ch)
 
@@ -87,7 +88,7 @@ def main(argv=None):
 		# option processing
 		for option, value in opts:
 			if option == "-v":
-				verbose = True
+				log.setLevel( logging.INFO )
 			if option in ("-h", "--help"):
 				raise Usage(help_message)
 			if option in ("-o", "--outputdir"):
@@ -111,13 +112,12 @@ def main(argv=None):
 	else:
 		fileList = os.listdir( config['inputdir'] )
 	
+	log.info( "files to be processed: " + str(fileList) )
 	# build the necessary objects
 	renamer = EpisodeRenamer()
 
 	# go through every filenames in the list
 	for filename in fileList:
-
-
         # 1 check whether the file exists
         # 2 check whether
 		if not isMovieFile( filename ):
