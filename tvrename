@@ -13,6 +13,7 @@ import os
 import re
 import errno
 import shutil
+import logging
 
 from pytvrename import *
 
@@ -36,6 +37,12 @@ config = { 'outputdir': os.path.abspath('.'),
            'move': False,
            'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
+# create the logging
+log = logging.getLogger('tvrename')
+log.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+log.addHandler(ch)
 
 
 def isMovieFile(filename):
@@ -88,6 +95,7 @@ def main(argv=None):
 			if option in ("-m", "--move"):
 				config['move'] = True
 			
+		
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
 		print >> sys.stderr, "\t for help use --help"
@@ -98,6 +106,9 @@ def main(argv=None):
 		fileList = args
 	else:
 		fileList = os.listdir( config['inputdir'] )
+	# 
+	# log.info( "filelist" )		
+	# print fileList
 
 	# build the necessary objects
 	renamer = EpisodeRenamer()
@@ -135,11 +146,11 @@ def main(argv=None):
 		
 		# copy or move the file from origin to goal
 		if config['move']:
-			print "move '%s' '%s'" % ( origin_path, goal_path)
-			shutil.move( origin_path, goal_path )
+			log.info( "move '%s' '%s'" % ( origin_path, goal_path) )
+			# shutil.move( origin_path, goal_path )
 		else:
-			print "copy '%s' '%s'" % ( origin_path, goal_path)
-			shutil.copyfile( origin_path, goal_path )
+			log.info( "copy '%s' '%s'" % ( origin_path, goal_path) )
+			# shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
 	sys.exit(main())
