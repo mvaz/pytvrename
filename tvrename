@@ -38,12 +38,11 @@ config = { 'outputdir': os.path.abspath('.'),
            'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
 
-# create the logging
+# create the logging objects
 log = logging.getLogger('pytvrename')
 log.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()
-# ch.setLevel(logging.ERROR)
 # create formatter and add it to the handlers
 ch.setFormatter( logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s") )
 # add the handlers to the logger
