@@ -20,8 +20,8 @@ class NullHandler(logging.Handler):
         pass
 
 # initialize the loggers
-h = NullHandler()
-logging.getLogger("pytvrename").addHandler(h)
+# h = NullHandler()
+# logging.getLogger("pytvrename").addHandler(h)
 # logging.getLogger("pytvrename").setLevel( logging.INFO )
 
 class EpisodeRenamer(object):
@@ -33,7 +33,12 @@ class EpisodeRenamer(object):
 		super(EpisodeRenamer, self).__init__()
 		self.showCache = dict()
 		self.list = []
-	
+		self.log  = logging.getLogger("pytvrename.EpisodeRenamer")
+		self.log.addHandler( NullHandler() )
+		# self.log.info("creating an instance")
+		# self.logger = 
+		#         self.logger.info("creating an instance of Auxiliary")
+		
 	
 	@staticmethod
 	def normalizeShowTitleEpguides( showTitle ):
@@ -99,7 +104,7 @@ class EpisodeRenamer(object):
 		"""
 		# show = EpisodeRenamer.normalizeShowTitleEpguides( show )
 		# print show
-		logging.info("false alarm")
+		self.log.warn("false alarm")
 		if not show in self.showCache:
 			try:
 				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )

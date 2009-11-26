@@ -37,9 +37,17 @@ config = { 'outputdir': os.path.abspath('.'),
            'move': False,
            'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
+
 # create the logging
 log = logging.getLogger('pytvrename')
 log.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler()
+# ch.setLevel(logging.ERROR)
+# create formatter and add it to the handlers
+ch.setFormatter( logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s") )
+# add the handlers to the logger
+log.addHandler(ch)
 
 
 def isMovieFile(filename):
@@ -141,10 +149,10 @@ def main(argv=None):
 		# copy or move the file from origin to goal
 		if config['move']:
 			log.info( "move '%s' '%s'" % ( origin_path, goal_path) )
-			# shutil.move( origin_path, goal_path )
+			shutil.move( origin_path, goal_path )
 		else:
 			log.info( "copy '%s' '%s'" % ( origin_path, goal_path) )
-			# shutil.copyfile( origin_path, goal_path )
+			shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
 	sys.exit(main())
