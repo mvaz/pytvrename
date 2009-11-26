@@ -61,7 +61,6 @@ class EpisodeRenamer(object):
 		"""
 		cleanShowTitle = re.sub( r'[\,\.\'\;\"\ ]', '_', showTitle)
 		log.debug('%s -> %s' % (showTitle, cleanShowTitle))
-		# cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
 		return cleanShowTitle
 
 	

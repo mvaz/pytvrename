@@ -132,7 +132,7 @@ def main(argv=None):
 		try:
 			ep.title = renamer.getEpisodeName( ep )
 		except EpisodeNotFoundError:
-			print "EpisodeNotFoundError"
+			log.warn("EpisodeNotFoundError: setting title to ''")
 			ep.title = ""
 
 		# make the output of the stuff
