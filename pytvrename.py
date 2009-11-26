@@ -154,7 +154,7 @@ class EpisodeRenamer(object):
 		page = soup.find(id="eplist").pre
     
 		# compile the regular expression
-		reg = "^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*[\w\d\/]{2,}\s*(.*$)" % {'season': int(episode.season), 'number': int(episode.number) }
+		reg = "^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*.*?(<a.*$)" % {'season': int(episode.season), 'number': int(episode.number) }
 		reg = re.compile( reg, re.I | re.U )
 		
 		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
