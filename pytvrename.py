@@ -24,6 +24,11 @@ class NullHandler(logging.Handler):
 # logging.getLogger("pytvrename").addHandler(h)
 # logging.getLogger("pytvrename").setLevel( logging.INFO )
 
+log  = logging.getLogger("pytvrename.EpisodeRenamer")
+log.addHandler( NullHandler() )
+
+
+
 class EpisodeRenamer(object):
 	"""
 	docstring for EpisodeRenamer
@@ -33,8 +38,6 @@ class EpisodeRenamer(object):
 		super(EpisodeRenamer, self).__init__()
 		self.showCache = dict()
 		self.list = []
-		self.log  = logging.getLogger("pytvrename.EpisodeRenamer")
-		self.log.addHandler( NullHandler() )
 		# self.log.info("creating an instance")
 		# self.logger = 
 		#         self.logger.info("creating an instance of Auxiliary")
@@ -47,6 +50,7 @@ class EpisodeRenamer(object):
 		"""
 		cleanShowTitle = re.sub( r'[\,\.\'\;\"\ ]', '', showTitle)
 		cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
+		log.debug('%s -> %s' % (showTitle, cleanShowTitle))
 		return cleanShowTitle
 	
 	
@@ -56,6 +60,7 @@ class EpisodeRenamer(object):
 		for the moment, this is just a hack, thought for the case of V2009
 		"""
 		cleanShowTitle = re.sub( r'[\,\.\'\;\"\ ]', '_', showTitle)
+		log.debug('%s -> %s' % (showTitle, cleanShowTitle))
 		# cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
 		return cleanShowTitle
 
@@ -71,7 +76,7 @@ class EpisodeRenamer(object):
 			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		except:
-			self.log.debug("conversion from '%s' to '%s' failed... trying second" % (show, cleanShow))
+			log.debug("conversion from '%s' to '%s' failed... trying second" % (show, cleanShow))
 			cleanShow = EpisodeRenamer.normalizeShowTitleEpguidesCase2( show )
 			# print cleanShow
 			url = "http://epguides.com/%s" % (cleanShow)
@@ -105,6 +110,7 @@ class EpisodeRenamer(object):
 		"""
 		# show = EpisodeRenamer.normalizeShowTitleEpguides( show )
 		# print show
+		log.debug( 'get page of show')
 		if not show in self.showCache:
 			try:
 				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )
@@ -137,7 +143,7 @@ class EpisodeRenamer(object):
 			page = self.getPageOfShow( episode.show )
 		except ShowNotFoundError:
 			# report that something may have gone wrong
-			self.log.warn( "show name '%s' not recognized by epguides" % (episode.show) )
+			log.warn( "show name '%s' not recognized by epguides" % (episode.show) )
 			return ""
     
 	    # remove <script> stuff, because it breaks BeautifulSoup
