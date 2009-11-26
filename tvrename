@@ -148,10 +148,10 @@ def main(argv=None):
 		
 		# copy or move the file from origin to goal
 		if config['move']:
-			log.info( "move '%s' '%s'" % ( origin_path, goal_path) )
+			log.info( "mv '%s' '%s'" % ( origin_path, goal_path) )
 			shutil.move( origin_path, goal_path )
 		else:
-			log.info( "copy '%s' '%s'" % ( origin_path, goal_path) )
+			log.info( "cp '%s' '%s'" % ( origin_path, goal_path) )
 			shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
