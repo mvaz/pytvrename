@@ -113,7 +113,7 @@ def main(argv=None):
 	else:
 		fileList = os.listdir( config['inputdir'] )
 	
-	# log.info( "files to be processed: " + str(fileList) )
+	log.debug( "files to be processed: " + str(fileList) )
 	# build the necessary objects
 	renamer = EpisodeRenamer()
 
