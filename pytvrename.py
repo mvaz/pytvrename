@@ -74,14 +74,13 @@ class EpisodeRenamer(object):
 			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		except:
-			log.debug("conversion from '%s' to '%s' failed... trying second" % (show, cleanShow))
+			log.debug(u"conversion from '%s' to '%s' failed... trying alternative" % (show, cleanShow))
 			cleanShow = EpisodeRenamer.normalizeShowTitleEpguidesCase2( show )
 			# print cleanShow
 			url = "http://epguides.com/%s" % (cleanShow)
 			response = urllib2.urlopen(url)
 		
-		html = response.read()
-		html = html.decode('iso-8859-1')
+		html = response.read().decode('iso-8859-1')
 		return html
 	
 	
@@ -109,7 +108,7 @@ class EpisodeRenamer(object):
 		"""
 		# show = EpisodeRenamer.normalizeShowTitleEpguides( show )
 		# print show
-		log.debug( 'get page of show')
+		log.debug(u'get page of show')
 		if not show in self.showCache:
 			try:
 				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )
@@ -222,7 +221,7 @@ class Episode(object):
 	@staticmethod
 	def createEpisodeFromFilename( filename ):
 		""" """
-		log.debug( 'createEpisodeFromFilename: %s' % filename)
+		log.debug( u'createEpisodeFromFilename: %s' % filename)
 		# reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d{1,2})[\._ \-]?[EeXx]?(?P<number>\d{1,2})[\._ \-]"
 		regs = [ re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
 		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
@@ -243,12 +242,12 @@ class Episode(object):
 		try:
 			ep = Episode( show, season, number )
 		except UnboundLocalError:
-			log.error("Unable to parse '%s'" % filename)
+			log.error(u"Unable to parse '%s'" % filename)
 			raise CouldNotParseEpisodeError( "Unable to parse '%s'" % filename)
 		return ep
 	
 	
-	def generateCorrectFilename(self, pattern = "%s S%02dE%02d %s.avi"):
+	def generateCorrectFilename(self, pattern = u"%(show)s S%(season)02dE%(number)02d %(title)s.avi"):
 		"""
 		Takes an input pattern and generates a filename using the pattern
 		The default pattern is 
@@ -258,8 +257,11 @@ class Episode(object):
 		if
 		    self.show = Lost, self.season = 3, self.number = 2, self.title = "Whatever"
 		"""
-		return pattern % (self.show, self.season, self.number, self.title)
-	
+		try:
+			filename = pattern % ('show':self.show, 'season':self.season, 'number':self.number, 'title':self.title)
+		except UnicodeDecodeError:
+			filename = pattern % ('show':self.show, 'season':self.season, 'number':self.number, 'title':self.title)
+		return filename
 
 	
 
