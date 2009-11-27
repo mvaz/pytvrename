@@ -1,3 +1,17 @@
+Usage:
+   tvrename --outputdir=/media/tv --inputdir=.
+or
+   tvrename --outputdir=/media/tv  this.show.s03e01.whatever.xvid.avi
+
+at the moment, if inputdir and file-arguments are specified, only the specified files are processed
+
+Options:
+   --pattern=
+   --outputdir=
+   --inputdir=
+   --move
+   --silent
+
 Works by
 
   1. scrapping a file for

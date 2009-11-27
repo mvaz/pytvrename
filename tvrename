@@ -35,6 +35,7 @@ Options:
 config = { 'outputdir': os.path.abspath('.'),
            'inputdir': os.path.abspath('.'),
            'move': False,
+           'simulate': False,
            'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
 
@@ -78,7 +79,7 @@ def main(argv=None):
 		argv = sys.argv
 	try:
 		try:
-			opts, args = getopt.getopt( argv[1:], "mho:p:i:vd", ["help", "outputdir=", "pattern=", 'inputdir=', 'debug'] )
+			opts, args = getopt.getopt( argv[1:], "smho:p:i:vd", ["simulate", "move", "help", "outputdir=", "pattern=", 'inputdir=', 'debug'] )
 		except getopt.error, msg:
 			raise Usage(msg)
 	
@@ -90,6 +91,8 @@ def main(argv=None):
 			if option in ("-d", "--debug"):
 				log.setLevel( logging.DEBUG )
 				ch.setLevel( logging.DEBUG )
+			if option in ("-s", "--simulate"):
+				config['simulate'] = True
 			if option in ("-h", "--help"):
 				raise Usage(help_message)
 			if option in ("-o", "--outputdir"):
@@ -121,11 +124,19 @@ def main(argv=None):
 	for filename in fileList:
         # 1 check whether the file exists
         # 2 check whether
+		
 		if not isMovieFile( filename ):
+			log.debug("ignoring '%s'" % filename)
 			continue
 
-		# create the episode from the filename
-		ep = Episode.createEpisodeFromFilename( filename )
+		# create the episode from the filename. if not possible, skips the file
+		try:
+			ep = Episode.createEpisodeFromFilename( filename )
+		except:
+			log.debug("ignoring '%s'" % filename)
+			continue
+		log.debug("processing '%s'" % filename)
+		
 		# set the show straight
 		ep.show = renamer.normalizeShowTitle( ep.show )
 		# get the title of the episode
@@ -144,15 +155,18 @@ def main(argv=None):
 		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
 		
 		# make the goal path
-		mkdirp( os.path.dirname(goal_path) )
+		if not config['simulate']:
+			mkdirp( os.path.dirname(goal_path) )
 		
 		# copy or move the file from origin to goal
 		if config['move']:
 			log.info( "mv '%s' '%s'" % ( origin_path, goal_path) )
-			shutil.move( origin_path, goal_path )
+			if not config['simulate']:
+				shutil.move( origin_path, goal_path )
 		else:
 			log.info( "cp '%s' '%s'" % ( origin_path, goal_path) )
-			shutil.copyfile( origin_path, goal_path )
+			if not config['simulate']:
+				shutil.copyfile( origin_path, goal_path )
 
 if __name__ == "__main__":
 	sys.exit(main())
