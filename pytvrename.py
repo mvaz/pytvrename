@@ -7,7 +7,6 @@ Created by Miguel Vaz on 2009-08-31.
 Copyright (c) 2009. All rights reserved.
 """
 
-import sys, os
 import re, difflib
 import urllib2
 from BeautifulSoup import BeautifulSoup, SoupStrainer
