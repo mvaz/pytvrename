@@ -138,7 +138,10 @@ def main(argv=None):
 		log.debug("processing '%s'" % filename)
 		
 		# set the show straight
-		ep.show = renamer.normalizeShowTitle( ep.show )
+		try:
+			ep.show = renamer.normalizeShowTitle( ep.show )
+		except IndexError:
+			log.warn(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % ep.show)
 		# get the title of the episode
 		try:
 			ep.title = renamer.getEpisodeName( ep )
