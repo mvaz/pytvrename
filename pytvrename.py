@@ -87,7 +87,7 @@ class EpisodeRenamer(object):
 	def __updateShowListEZTV(self):
 		""" updates the list of tvshows from the eztv website """
 		showListURL = "http://ezrss.it/shows/"
-		html = urllib2.urlopen( showListURL ).read()
+		html = urllib2.urlopen( showListURL ).read().decode('iso-8859-1')
 		links = SoupStrainer('a', href=re.compile('show_name') )
 		self.list = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
 	
@@ -123,7 +123,7 @@ class EpisodeRenamer(object):
 		"""docstring for getShowList"""
 		showListURL = "http://ezrss.it/shows/"
 		# download page
-		html = urllib2.urlopen( showListURL ).read()
+		html = urllib2.urlopen( showListURL ).read().decode('iso-8859-1')
 		
 		links = SoupStrainer('a', href=re.compile('show_name') )
 		liste = [ tag.contents[0] for tag in BeautifulSoup(html, parseOnlyThese=links)]
@@ -141,7 +141,7 @@ class EpisodeRenamer(object):
 			page = self.getPageOfShow( episode.show )
 		except ShowNotFoundError:
 			# report that something may have gone wrong
-			log.warn( "show name '%s' not recognized by epguides" % (episode.show) )
+			log.warn( u"show name '%s' not recognized by epguides" % (episode.show) )
 			return ""
     
 	    # remove <script> stuff, because it breaks BeautifulSoup
@@ -153,10 +153,10 @@ class EpisodeRenamer(object):
 		page = soup.find(id="eplist").pre
     
 		# compile the regular expression
-		reg = "^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*.*?(<a.*$)" % {'season': int(episode.season), 'number': int(episode.number) }
+		reg = r"^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*.*?(<a.*$)" % {'season': int(episode.season), 'number': int(episode.number) }
 		reg = re.compile( reg, re.I | re.U )
 		
-		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I )
+		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I | re.U)
 		    
 		# split the page into different lines
 		for line in str(page).splitlines():
@@ -166,7 +166,7 @@ class EpisodeRenamer(object):
 		else:
 			# TODO raise EpisodeNotFoundError exception
 			# print "EpisodeNotFoundError: " + str(episode)
-			raise EpisodeNotFoundError("Episode %d, of season %d, of show %s not found" % (episode.number, episode.season, episode.show) )
+			raise EpisodeNotFoundError(u"Episode %d, of season %d, of show %s not found" % (episode.number, episode.season, episode.show) )
 		
 		return title
 	
@@ -223,9 +223,9 @@ class Episode(object):
 		""" """
 		log.debug( u'createEpisodeFromFilename: %s' % filename)
 		# reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d{1,2})[\._ \-]?[EeXx]?(?P<number>\d{1,2})[\._ \-]"
-		regs = [ re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
-		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
-		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]", re.I | re.U) ]
+		regs = [ re.compile( r"(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
+		         re.compile( r"(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
+		         re.compile( r"(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]", re.I | re.U) ]
 		for reg in regs:
 			reg = reg.search( filename )
 			try:
@@ -243,7 +243,7 @@ class Episode(object):
 			ep = Episode( show, season, number )
 		except UnboundLocalError:
 			log.error(u"Unable to parse '%s'" % filename)
-			raise CouldNotParseEpisodeError( "Unable to parse '%s'" % filename)
+			raise CouldNotParseEpisodeError(u"Unable to parse '%s'" % filename)
 		return ep
 	
 	
@@ -257,10 +257,7 @@ class Episode(object):
 		if
 		    self.show = Lost, self.season = 3, self.number = 2, self.title = "Whatever"
 		"""
-		try:
-			filename = pattern % ('show':self.show, 'season':self.season, 'number':self.number, 'title':self.title)
-		except UnicodeDecodeError:
-			filename = pattern % ('show':self.show, 'season':self.season, 'number':self.number, 'title':self.title)
+		filename = pattern % {'show':self.show, 'season':self.season, 'number':self.number, 'title':self.title}
 		return filename
 
 	
