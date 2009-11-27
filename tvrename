@@ -54,7 +54,7 @@ def isMovieFile(filename):
 	currently give by a simple regular expression
 	TODO add isfile test
 	"""
-	if not os.path.isfile(filename)
+	if not os.path.isfile(filename):
 		return False
 	reg = re.compile( ".*?.avi$", re.I | re.U )
 	return reg.match(filename)
@@ -126,7 +126,7 @@ def main(argv=None):
 	for filename in fileList:
 		#
 		if not isMovieFile( filename ):
-			log.warn("ignoring '%s'" % filename)
+			log.warn("ignoring '%s': not a (movie) file" % filename)
 			continue
 
 		# create the episode from the filename. if not possible, skips the file
