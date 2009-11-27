@@ -54,6 +54,8 @@ def isMovieFile(filename):
 	currently give by a simple regular expression
 	TODO add isfile test
 	"""
+	if not os.path.isfile(filename)
+		return False
 	reg = re.compile( ".*?.avi$", re.I | re.U )
 	return reg.match(filename)
 
@@ -122,9 +124,7 @@ def main(argv=None):
 
 	# go through every filenames in the list
 	for filename in fileList:
-        # 1 check whether the file exists
-        # 2 check whether
-		
+		#
 		if not isMovieFile( filename ):
 			log.warn("ignoring '%s'" % filename)
 			continue
