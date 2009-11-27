@@ -249,7 +249,15 @@ class Episode(object):
 	
 	
 	def generateCorrectFilename(self, pattern = "%s S%02dE%02d %s.avi"):
-		""" """
+		"""
+		Takes an input pattern and generates a filename using the pattern
+		The default pattern is 
+			"%s S%02dE%02d %s.avi"
+		which will generate something like
+			Lost S03E02 Whatever.avi
+		if
+		    self.show = Lost, self.season = 3, self.number = 2, self.title = "Whatever"
+		"""
 		return pattern % (self.show, self.season, self.number, self.title)
 	
 
