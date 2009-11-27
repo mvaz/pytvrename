@@ -153,7 +153,8 @@ class EpisodeRenamer(object):
 		page = soup.find(id="eplist").pre
     
 		# compile the regular expression
-		reg = r"^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*.*?(<a.*$)" % {'season': int(episode.season), 'number': int(episode.number) }
+		reg = r"^\s*\d+\.?\s+%(season)d-\s*(?:%(number)2d|%(number)02d)\s*.*?(<a.*$)" % {'season': int(episode.season),
+		                                                                                 'number': int(episode.number) }
 		reg = re.compile( reg, re.I | re.U )
 		
 		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I | re.U)
@@ -164,9 +165,9 @@ class EpisodeRenamer(object):
 				title = reg2.search( line ).group(1)
 				break
 		else:
-			# TODO raise EpisodeNotFoundError exception
-			# print "EpisodeNotFoundError: " + str(episode)
-			raise EpisodeNotFoundError(u"Episode %d, of season %d, of show %s not found" % (episode.number, episode.season, episode.show) )
+			raise EpisodeNotFoundError(u"Episode %d, of season %d, of show %s not found" % (episode.number,
+			                                                                                episode.season,
+			                                                                                episode.show) )
 		
 		return title
 	
