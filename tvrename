@@ -158,6 +158,7 @@ def main(argv=None):
 		goal_path = config['pattern']  % { 'show': ep.show,
 	                                       'season': int(ep.season),
 	                                       'filename': correctFilename }
+		goal_path = goal_path.encode('utf-8')
 		goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
 		# generate the path of the filename 
 		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
