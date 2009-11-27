@@ -124,11 +124,19 @@ def main(argv=None):
 	for filename in fileList:
         # 1 check whether the file exists
         # 2 check whether
+		
 		if not isMovieFile( filename ):
+			log.debug("ignoring '%s'" % filename)
 			continue
 
-		# create the episode from the filename
-		ep = Episode.createEpisodeFromFilename( filename )
+		# create the episode from the filename. if not possible, skips the file
+		try:
+			ep = Episode.createEpisodeFromFilename( filename )
+		except:
+			log.debug("ignoring '%s'" % filename)
+			continue
+		log.debug("processing '%s'" % filename)
+		
 		# set the show straight
 		ep.show = renamer.normalizeShowTitle( ep.show )
 		# get the title of the episode

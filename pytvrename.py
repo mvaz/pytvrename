@@ -95,6 +95,7 @@ class EpisodeRenamer(object):
 	
 	def normalizeShowTitle(self, title):
 		""" takes a string containing a title, and returns the most probable from the list """
+		log.debug( 'normalizeShowTitle: %s' % title)
 		if self.list == []:
 			self.__updateShowListEZTV()
 		zbr = difflib.get_close_matches( title, self.list, n=1 )
@@ -191,6 +192,14 @@ class EpisodeNotFoundError(Exception):
 	def __str__(self):
 		return str(self.value)
 
+class CouldNotParseEpisodeError(Exception):
+	""" docstring for EpisodeNotFoundError """
+	def __init__(self, value):
+		super(CouldNotParseEpisodeError, self).__init__()
+		self.value = value
+
+	def __str__(self):
+		return str(self.value)
 
 
 
@@ -213,25 +222,30 @@ class Episode(object):
 	@staticmethod
 	def createEpisodeFromFilename( filename ):
 		""" """
+		log.debug( 'createEpisodeFromFilename: %s' % filename)
 		# reg = "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss]?(?P<season>\d{1,2})[\._ \-]?[EeXx]?(?P<number>\d{1,2})[\._ \-]"
-		regs = [ re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
-		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
-		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]", re.I | re.U) ]
+		regs = [ re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
+		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]", re.I | re.U),
+		         re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]", re.I | re.U) ]
 		for reg in regs:
 			reg = reg.search( filename )
 			try:
 				show   = reg.group('show')
+				log.debug('   show: %s' % show)
 				season = reg.group('season')
+				log.debug('   season: %s' % season)
 				number = reg.group('number')
+				log.debug('   number: %s' % number)
+				break
 			except:
 				continue
-		# 
-		# # reg_canonical = re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]", re.I | re.U )
-		# # reg_withx     = re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]", re.I | re.U )
-		# # reg_numbers   = re.compile( "(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+?(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]", re.I | re.U )		
-		# reg = re.compile( reg, re.I | re.U )
-		# zbr = reg.search( filename )
-		return Episode( show, season, number )
+		# FIXME it assumes that the 
+		try:
+			ep = Episode( show, season, number )
+		except UnboundLocalError:
+			log.error("Unable to parse '%s'" % filename)
+			raise CouldNotParseEpisodeError( "Unable to parse '%s'" % filename)
+		return ep
 	
 	
 	def generateCorrectFilename(self, pattern = "%s S%02dE%02d %s.avi"):
