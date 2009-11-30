@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-untitled.py
+tvrename
 
 Created by Miguel Vaz on 2009-11-24.
-Copyright (c) 2009 Universidade do Minho. All rights reserved.
+Copyright (c) 2009. All rights reserved.
 """
 
 import sys
@@ -27,7 +27,11 @@ at the moment, if inputdir and file-arguments are specified, only the specified 
 
 Options:
    --pattern=
-   --move
+   --move, -m
+   --inputdir=
+   --outputdir=
+   -d
+   --simulate
 '''
 
 
@@ -124,9 +128,12 @@ def main(argv=None):
 
 	# go through every filenames in the list
 	for filename in fileList:
-		#
-		if not isMovieFile( filename ):
-			log.warn("ignoring '%s': not a (movie) file" % filename)
+		
+		# generate the path of the filename 
+		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
+		
+		if not isMovieFile( origin_path ):
+			log.warn("ignoring '%s': not a (movie) file" % origin_path)
 			continue
 
 		# create the episode from the filename. if not possible, skips the file
@@ -163,8 +170,6 @@ def main(argv=None):
 	                                       'filename': correctFilename }
 		goal_path = goal_path.encode('utf-8')
 		goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
-		# generate the path of the filename 
-		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
 		
 		# make the goal path
 		if not config['simulate']:
