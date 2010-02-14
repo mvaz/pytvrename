@@ -14,6 +14,7 @@ import re
 import errno
 import shutil
 import logging
+import threading
 
 from pytvrename import *
 
@@ -75,6 +76,28 @@ def mkdirp(path):
 		else: raise
 
 
+class RenamerThread(threading.Thread):
+	"""docstring for RenamerThread"""
+	def __init__(self, renamer, filename):
+		super(RenamerThread, self).__init__()
+		self.renamer = renamer
+		self.filename = filename
+		self.result = []
+	
+	def get_result(self):
+		return self.result
+	
+	def run(self):
+		try:
+			f = urllib.urlopen(url)
+			contents = f.read()
+			f.close()
+			self.result = contents
+		except IOError:
+			print "Could not open document: %s" % url
+	
+		
+
 class Usage(Exception):
 	def __init__(self, msg):
 		self.msg = msg
@@ -88,7 +111,7 @@ def main(argv=None):
 			opts, args = getopt.getopt( argv[1:], "smho:p:i:vd", ["simulate", "move", "help", "outputdir=", "pattern=", 'inputdir=', 'debug'] )
 		except getopt.error, msg:
 			raise Usage(msg)
-	
+		
 		# option processing
 		for option, value in opts:
 			if option == "-v":
@@ -125,7 +148,7 @@ def main(argv=None):
 	log.debug( "files to be processed: " + str(fileList) )
 	# build the necessary objects
 	renamer = EpisodeRenamer()
-
+	
 	# go through every filenames in the list
 	for filename in fileList:
 		
@@ -135,7 +158,7 @@ def main(argv=None):
 		if not isMovieFile( origin_path ):
 			log.warn("ignoring '%s': not a (movie) file" % origin_path)
 			continue
-
+		
 		# create the episode from the filename. if not possible, skips the file
 		try:
 			ep = Episode.createEpisodeFromFilename( filename )
@@ -157,7 +180,7 @@ def main(argv=None):
 		except EpisodeNotFoundError:
 			log.warn("EpisodeNotFoundError: setting title to ''")
 			ep.title = ""
-
+		
 		# try and get the correctFilename, and pay attention to unicode difficulties
 		try:
 			correctFilename = ep.generateCorrectFilename()
