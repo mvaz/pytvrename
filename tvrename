@@ -30,6 +30,7 @@ Options:
 
 	-v, --verbose
 	-d, --debug
+	-S, --silent
 	-s, --simulate
 	-h, --help
 	-m, --move
@@ -165,6 +166,9 @@ def main(argv=None):
 			if option in ("-d", "--debug"):
 				log.setLevel( logging.DEBUG )
 				ch.setLevel( logging.DEBUG )
+			if option in ("-S", "--silent")
+				log.setLevel( logging.CRITICAL )
+				ch.setLevel( logging.CRITICAL )
 			if option in ("-s", "--simulate"):
 				config['simulate'] = True
 			if option in ("-h", "--help"):
