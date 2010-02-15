@@ -27,12 +27,16 @@ or
 at the moment, if inputdir and file-arguments are specified, only the specified files are processed
 
 Options:
-   --pattern=
-   --move, -m
-   --inputdir=
-   --outputdir=
-   -d
-   --simulate
+
+	-v, --verbose
+	-d, --debug
+	-s, --simulate
+	-h, --help
+	-m, --move
+
+	-o=, --outputdir=
+	-i=, --inputdir=
+	-p=, --pattern=
 '''
 
 
@@ -92,14 +96,13 @@ def mkdirp(path):
 def run(renamer, filename):
 	# generate the path of the filename 
 	result = None
-	origin_path = os.path.abspath( os.path.join( config['inputdir'], self.filename ) )
+	origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
 	
 	# skip non movie files
 	if not isMovieFile( origin_path ):
 		log.warn("ignoring '%s': not a (movie) file" % origin_path)
 		return result
 	
-	# create the episode from the filename. if not possible, skips the file
 	# create the episode from the filename. if not possible, skips the file
 	try:
 		# create the episode object
@@ -140,9 +143,7 @@ def run(renamer, filename):
 	goal_path = goal_path.encode('utf-8')
 	goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
 	
-	result = goal_path
-	
-	return result
+	return goal_path
 	
 		
 
@@ -162,7 +163,7 @@ def main(argv=None):
 		
 		# option processing
 		for option, value in opts:
-			if option == "-v":
+			if option in ("-v", "--verbose"):
 				log.setLevel( logging.INFO )
 				ch.setLevel( logging.INFO )
 			if option in ("-d", "--debug"):
@@ -200,47 +201,49 @@ def main(argv=None):
 	# go through every filenames in the list
 	for filename in fileList:
 		
-		# generate the path of the filename 
-		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
 		
-		if not isMovieFile( origin_path ):
-			log.warn("ignoring '%s': not a (movie) file" % origin_path)
-			continue
-		
-		# create the episode from the filename. if not possible, skips the file
-		try:
-			ep = Episode.createEpisodeFromFilename( filename )
-		except:
-			log.warn("ignoring '%s'" % filename)
-			continue
-		log.debug("processing '%s'" % filename)
-		
-		# standardize the show name
-		try:
-			ep.show = renamer.normalizeShowTitle( ep.show )
-		except IndexError:
-			log.warn(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % ep.show)
-		# get the title of the episode
-		try:
-			ep.title = renamer.getEpisodeName( ep )
-			ep.title = ep.title.decode('utf8')
-			# log.debug(u'Episode\'s name is: %s' % )
-		except EpisodeNotFoundError:
-			log.warn("EpisodeNotFoundError: setting title to ''")
-			ep.title = ""
-		
-		# try and get the correctFilename, and pay attention to unicode difficulties
-		try:
-			correctFilename = ep.generateCorrectFilename()
-		except UnicodeDecodeError:
-			ep.title = ep.title.decode('utf8')
-			correctFilename = ep.generateCorrectFilename()
+		goal_path = run( renamer, filename)		# 
+				# # generate the path of the filename 
+				# origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
+				# 
+				# if not isMovieFile( origin_path ):
+				# 	log.warn("ignoring '%s': not a (movie) file" % origin_path)
+				# 	continue
+				# 
+				# # create the episode from the filename. if not possible, skips the file
+				# try:
+				# 	ep = Episode.createEpisodeFromFilename( filename )
+				# except:
+				# 	log.warn("ignoring '%s'" % filename)
+				# 	continue
+				# log.debug("processing '%s'" % filename)
+				# 
+				# # standardize the show name
+				# try:
+				# 	ep.show = renamer.normalizeShowTitle( ep.show )
+				# except IndexError:
+				# 	log.warn(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % ep.show)
+				# # get the title of the episode
+				# try:
+				# 	ep.title = renamer.getEpisodeName( ep )
+				# 	ep.title = ep.title.decode('utf8')
+				# 	# log.debug(u'Episode\'s name is: %s' % )
+				# except EpisodeNotFoundError:
+				# 	log.warn("EpisodeNotFoundError: setting title to ''")
+				# 	ep.title = ""
+				# 
+				# # try and get the correctFilename, and pay attention to unicode difficulties
+				# try:
+				# 	correctFilename = ep.generateCorrectFilename()
+				# except UnicodeDecodeError:
+				# 	ep.title = ep.title.decode('utf8')
+				# 	correctFilename = ep.generateCorrectFilename()
 		# make the output of the stuff
-		goal_path = config['pattern']  % { 'show': ep.show,
-	                                       'season': int(ep.season),
-	                                       'filename': correctFilename }
-		goal_path = goal_path.encode('utf-8')
-		goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
+		# goal_path = config['pattern']  % { 'show': ep.show,
+		# 	                                       'season': int(ep.season),
+		# 	                                       'filename': correctFilename }
+		# goal_path = goal_path.encode('utf-8')
+		# goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
 		
 		# make the goal path
 		if not config['simulate']:
