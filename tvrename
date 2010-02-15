@@ -42,10 +42,10 @@ Options:
 
 # default configuration
 config = { 'outputdir': os.path.abspath('.'),
-           'inputdir': os.path.abspath('.'),
-           'move': False,
-           'simulate': False,
-           'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
+           'inputdir':  os.path.abspath('.'),
+           'move':      False,
+           'simulate':  False,
+           'pattern':   os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
 
 # create the logging objects
@@ -55,7 +55,7 @@ ch  = logging.StreamHandler()
 # create formatter and add it to the handlers
 ch.setFormatter( logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s") )
 
-# add the handlers to the logger
+# add the handler to the logger
 log.addHandler(ch)
 
 
@@ -121,13 +121,9 @@ def run(renamer, filename):
 		correctFilename = ep.generateCorrectFilename()
 		
 	except CouldNotParseEpisodeError:
-		log.warn("ignoring '%s'" % filename)
-		return result
-		# finish thread
-		
-	except IndexError:
-		log.warn(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % ep.show)
-		
+		raise
+	# except IndexError:
+	# 	log.warn(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % ep.show)
 	except EpisodeNotFoundError:
 		log.warn("EpisodeNotFoundError: setting title to ''")
 		ep.title = ""
@@ -201,8 +197,13 @@ def main(argv=None):
 	# go through every filenames in the list
 	for filename in fileList:
 		
+		try:
+			(origin_path, goal_path) = run( renamer, filename)
+		except CouldNotParseEpisodeError:
+			log.warn("ignoring '%s'" % filename)
+			continue
 		
-		goal_path = run( renamer, filename)		# 
+				# 
 				# # generate the path of the filename 
 				# origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
 				# 

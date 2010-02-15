@@ -98,9 +98,12 @@ class EpisodeRenamer(object):
 		log.debug( 'normalizeShowTitle: %s' % title)
 		if self.list == []:
 			self.__updateShowListEZTV()
-		zbr = difflib.get_close_matches( title, self.list, n=1 )
-		# FIXME check if this really works
-		return zbr[0]
+		try:
+			zbr = difflib.get_close_matches( title, self.list, n=1 )
+			# FIXME check if this really works
+			return zbr[0]
+		except IndexError:
+			raise ShowNotFoundError(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % title)
 		
 	
 	def getPageOfShow( self, show ):
