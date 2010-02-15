@@ -139,14 +139,8 @@ class RenamerThread(threading.Thread):
 		goal_path = goal_path.encode('utf-8')
 		goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
 		
-		# try:
-		# 	f = urllib.urlopen(url)
-		# 	contents = f.read()
-		# 	f.close()
-		# 	self.result = contents
-		# except IOError:
-		# 	print "Could not open document: %s" % url
-	
+		self.result = goal_path
+		
 		
 
 class Usage(Exception):
