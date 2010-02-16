@@ -6,11 +6,18 @@ or
 at the moment, if inputdir and file-arguments are specified, only the specified files are processed
 
 Options:
-   --pattern=
-   --outputdir=
-   --inputdir=
-   --move
-   --silent
+
+	-v, --verbose
+	-d, --debug
+	-S, --silent
+	-s, --simulate
+	-h, --help
+	-m, --move
+
+	-o=, --outputdir=
+	-i=, --inputdir=
+	-p=, --pattern=
+
 
 Works by
 
