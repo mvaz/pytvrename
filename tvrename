@@ -96,13 +96,11 @@ def mkdirp(path):
 # 	
 def run(renamer, filename):
 	# generate the path of the filename 
-	result = None
 	origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
 	
 	# skip non movie files
 	if not isMovieFile( origin_path ):
-		log.warn("ignoring '%s': not a (movie) file" % origin_path)
-		return result
+		raise NotAMovieFileError("ignoring '%s': not a (movie) file" % origin_path)
 	
 	# create the episode from the filename. if not possible, skips the file
 	try:
@@ -140,7 +138,7 @@ def run(renamer, filename):
 	goal_path = goal_path.encode('utf-8')
 	goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
 	
-	return goal_path
+	return (origin_path, goal_path)
 	
 		
 
@@ -166,7 +164,7 @@ def main(argv=None):
 			if option in ("-d", "--debug"):
 				log.setLevel( logging.DEBUG )
 				ch.setLevel( logging.DEBUG )
-			if option in ("-S", "--silent")
+			if option in ("-S", "--silent"):
 				log.setLevel( logging.CRITICAL )
 				ch.setLevel( logging.CRITICAL )
 			if option in ("-s", "--simulate"):
@@ -203,7 +201,11 @@ def main(argv=None):
 		
 		try:
 			(origin_path, goal_path) = run( renamer, filename)
+			
 		except CouldNotParseEpisodeError:
+			log.warn("ignoring '%s'" % filename)
+			continue
+		except NotAMovieFileError:
 			log.warn("ignoring '%s'" % filename)
 			continue
 		

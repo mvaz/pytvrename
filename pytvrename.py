@@ -178,10 +178,21 @@ class EpisodeRenamer(object):
 class ShowNotFoundError(Exception):
 	""" docstring for EpisodeNotFoundError """
 	def __init__(self,value):
+		super(ShowNotFoundError, self).__init__()
 		self.value = value
 	
 	def __str__(self):
 		return str(self.value)
+
+class NotAMovieFileError(Exception):
+	""" docstring for NotAMovieFileError """
+	def __init__(self,value):
+		super(NotAMovieFileError, self).__init__()
+		self.value = value
+
+	def __str__(self):
+		return str(self.value)
+
 
 
 class EpisodeNotFoundError(Exception):
