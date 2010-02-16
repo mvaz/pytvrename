@@ -14,6 +14,7 @@ import re
 import errno
 import shutil
 import logging
+import threading
 
 from pytvrename import *
 
@@ -26,29 +27,36 @@ or
 at the moment, if inputdir and file-arguments are specified, only the specified files are processed
 
 Options:
-   --pattern=
-   --move, -m
-   --inputdir=
-   --outputdir=
-   -d
-   --simulate
+
+	-v, --verbose
+	-d, --debug
+	-S, --silent
+	-s, --simulate
+	-h, --help
+	-m, --move
+
+	-o=, --outputdir=
+	-i=, --inputdir=
+	-p=, --pattern=
 '''
 
 
 # default configuration
 config = { 'outputdir': os.path.abspath('.'),
-           'inputdir': os.path.abspath('.'),
-           'move': False,
-           'simulate': False,
-           'pattern': os.path.join("%(show)s","Season %(season)d","%(filename)s") }
+           'inputdir':  os.path.abspath('.'),
+           'move':      False,
+           'simulate':  False,
+           'pattern':   os.path.join("%(show)s","Season %(season)d","%(filename)s") }
 
 
 # create the logging objects
 log = logging.getLogger('pytvrename')
 ch  = logging.StreamHandler()
+
 # create formatter and add it to the handlers
 ch.setFormatter( logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s") )
-# add the handlers to the logger
+
+# add the handler to the logger
 log.addHandler(ch)
 
 
@@ -75,6 +83,65 @@ def mkdirp(path):
 		else: raise
 
 
+# class RenamerThread(threading.Thread):
+# 	"""docstring for RenamerThread"""
+# 	def __init__(self, renamer, filename):
+# 		super(RenamerThread, self).__init__()
+# 		self.renamer = renamer
+# 		self.filename = filename
+# 		self.result = None
+# 	
+# 	def get_result(self):
+# 		return self.result
+# 	
+def run(renamer, filename):
+	# generate the path of the filename 
+	origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
+	
+	# skip non movie files
+	if not isMovieFile( origin_path ):
+		raise NotAMovieFileError("ignoring '%s': not a (movie) file" % origin_path)
+	
+	# create the episode from the filename. if not possible, skips the file
+	try:
+		# create the episode object
+		ep = Episode.createEpisodeFromFilename( filename )
+		
+		log.debug("processing '%s'" % filename)
+		
+		# standardize the show name
+		ep.show = renamer.normalizeShowTitle( ep.show )
+		
+		# get the title of the episode
+		ep.title = renamer.getEpisodeName( ep )
+		ep.title = ep.title.decode('utf8')
+		# log.debug(u'Episode\'s name is: %s' % )
+		
+		correctFilename = ep.generateCorrectFilename()
+		
+	except CouldNotParseEpisodeError:
+		raise
+	# except IndexError:
+	# 	log.warn(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % ep.show)
+	except EpisodeNotFoundError:
+		log.warn("EpisodeNotFoundError: setting title to ''")
+		ep.title = ""
+		
+	except UnicodeDecodeError:
+		ep.title = ep.title.decode('utf8')
+		correctFilename = ep.generateCorrectFilename()
+	
+	# 
+	goal_path = config['pattern']  % { 'show': ep.show,
+                                       'season': int(ep.season),
+                                       'filename': correctFilename }
+	goal_path = goal_path.encode('utf-8')
+	goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
+	
+	return (origin_path, goal_path)
+	
+		
+
 class Usage(Exception):
 	def __init__(self, msg):
 		self.msg = msg
@@ -88,15 +155,18 @@ def main(argv=None):
 			opts, args = getopt.getopt( argv[1:], "smho:p:i:vd", ["simulate", "move", "help", "outputdir=", "pattern=", 'inputdir=', 'debug'] )
 		except getopt.error, msg:
 			raise Usage(msg)
-	
+		
 		# option processing
 		for option, value in opts:
-			if option == "-v":
+			if option in ("-v", "--verbose"):
 				log.setLevel( logging.INFO )
 				ch.setLevel( logging.INFO )
 			if option in ("-d", "--debug"):
 				log.setLevel( logging.DEBUG )
 				ch.setLevel( logging.DEBUG )
+			if option in ("-S", "--silent"):
+				log.setLevel( logging.CRITICAL )
+				ch.setLevel( logging.CRITICAL )
 			if option in ("-s", "--simulate"):
 				config['simulate'] = True
 			if option in ("-h", "--help"):
@@ -125,52 +195,21 @@ def main(argv=None):
 	log.debug( "files to be processed: " + str(fileList) )
 	# build the necessary objects
 	renamer = EpisodeRenamer()
-
+	
 	# go through every filenames in the list
 	for filename in fileList:
 		
-		# generate the path of the filename 
-		origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
-		
-		if not isMovieFile( origin_path ):
-			log.warn("ignoring '%s': not a (movie) file" % origin_path)
-			continue
-
-		# create the episode from the filename. if not possible, skips the file
 		try:
-			ep = Episode.createEpisodeFromFilename( filename )
-		except:
+			(origin_path, goal_path) = run( renamer, filename)
+			
+		except CouldNotParseEpisodeError:
 			log.warn("ignoring '%s'" % filename)
 			continue
-		log.debug("processing '%s'" % filename)
-		
-		# standardize the show name
-		try:
-			ep.show = renamer.normalizeShowTitle( ep.show )
-		except IndexError:
-			log.warn(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % ep.show)
-		# get the title of the episode
-		try:
-			ep.title = renamer.getEpisodeName( ep )
-			ep.title = ep.title.decode('utf8')
-			# log.debug(u'Episode\'s name is: %s' % )
-		except EpisodeNotFoundError:
-			log.warn("EpisodeNotFoundError: setting title to ''")
-			ep.title = ""
-
-		# try and get the correctFilename, and pay attention to unicode difficulties
-		try:
-			correctFilename = ep.generateCorrectFilename()
-		except UnicodeDecodeError:
-			ep.title = ep.title.decode('utf8')
-			correctFilename = ep.generateCorrectFilename()
-		# make the output of the stuff
-		goal_path = config['pattern']  % { 'show': ep.show,
-	                                       'season': int(ep.season),
-	                                       'filename': correctFilename }
-		goal_path = goal_path.encode('utf-8')
-		goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
-		
+			
+		except NotAMovieFileError:
+			log.warn("ignoring '%s'" % filename)
+			continue
+			
 		# make the goal path
 		if not config['simulate']:
 			mkdirp( os.path.dirname(goal_path) )

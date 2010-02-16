@@ -13,10 +13,11 @@ from BeautifulSoup import BeautifulSoup, SoupStrainer
 import logging
 
 
-# define a do nothing handler
+# define a do nothing logging handler
 class NullHandler(logging.Handler):
     def emit(self, record):
         pass
+
 
 # initialize the loggers
 # h = NullHandler()
@@ -30,7 +31,7 @@ log.addHandler( NullHandler() )
 
 class EpisodeRenamer(object):
 	"""
-	docstring for EpisodeRenamer
+	class that implements the functionality to rename tv episodes
 	"""
 	
 	def __init__(self):
@@ -45,7 +46,7 @@ class EpisodeRenamer(object):
 	@staticmethod
 	def normalizeShowTitleEpguides( showTitle ):
 		""" 
-		removes every ,.;:'" and The at the beginning
+		removes every ,.;:'" and 'The' at the beginning of showTitle
 		"""
 		cleanShowTitle = re.sub( r'[\,\.\'\;\"\ ]', '', showTitle)
 		cleanShowTitle = re.sub( r'^The', '', cleanShowTitle, re.I)
@@ -97,18 +98,20 @@ class EpisodeRenamer(object):
 		log.debug( 'normalizeShowTitle: %s' % title)
 		if self.list == []:
 			self.__updateShowListEZTV()
-		zbr = difflib.get_close_matches( title, self.list, n=1 )
-		# FIXME check if this really works
-		return zbr[0]
+		try:
+			zbr = difflib.get_close_matches( title, self.list, n=1 )
+			# FIXME check if this really works
+			return zbr[0]
+		except IndexError:
+			raise ShowNotFoundError(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % title)
 		
 	
 	def getPageOfShow( self, show ):
 		""" 
-		Reads the epguides.com page of the show and returns the html contents 
+		Reads the epguides.com page of the show and returns the html contents.
+		TODO: make it thread safe
 		"""
-		# show = EpisodeRenamer.normalizeShowTitleEpguides( show )
-		# print show
-		log.debug(u'get page of show')
+		log.debug(u"(getPageOfShow) fetching info about show '%s'" % (show))
 		if not show in self.showCache:
 			try:
 				self.showCache[show] = EpisodeRenamer.getPageOfShowFromEpguides( show )
@@ -175,11 +178,20 @@ class EpisodeRenamer(object):
 class ShowNotFoundError(Exception):
 	""" docstring for EpisodeNotFoundError """
 	def __init__(self,value):
+		super(ShowNotFoundError, self).__init__()
 		self.value = value
 	
 	def __str__(self):
 		return str(self.value)
-	
+
+class NotAMovieFileError(Exception):
+	""" docstring for NotAMovieFileError """
+	def __init__(self,value):
+		super(NotAMovieFileError, self).__init__()
+		self.value = value
+
+	def __str__(self):
+		return str(self.value)
 
 
 
@@ -192,15 +204,15 @@ class EpisodeNotFoundError(Exception):
 	def __str__(self):
 		return str(self.value)
 
+
 class CouldNotParseEpisodeError(Exception):
 	""" docstring for EpisodeNotFoundError """
 	def __init__(self, value):
 		super(CouldNotParseEpisodeError, self).__init__()
 		self.value = value
-
+	
 	def __str__(self):
 		return str(self.value)
-
 
 
 class Show(object):
@@ -208,7 +220,7 @@ class Show(object):
 	def __init__(self, name):
 		super(Show, self).__init__()
 		self.name = name
-		
+
 
 class Episode(object):
 	""" holds the information for an episode """
@@ -260,7 +272,6 @@ class Episode(object):
 		"""
 		filename = pattern % {'show':self.show, 'season':self.season, 'number':self.number, 'title':self.title}
 		return filename
-
 	
 
 #
