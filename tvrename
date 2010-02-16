@@ -205,53 +205,11 @@ def main(argv=None):
 		except CouldNotParseEpisodeError:
 			log.warn("ignoring '%s'" % filename)
 			continue
+			
 		except NotAMovieFileError:
 			log.warn("ignoring '%s'" % filename)
 			continue
-		
-				# 
-				# # generate the path of the filename 
-				# origin_path = os.path.abspath( os.path.join( config['inputdir'], filename ) )
-				# 
-				# if not isMovieFile( origin_path ):
-				# 	log.warn("ignoring '%s': not a (movie) file" % origin_path)
-				# 	continue
-				# 
-				# # create the episode from the filename. if not possible, skips the file
-				# try:
-				# 	ep = Episode.createEpisodeFromFilename( filename )
-				# except:
-				# 	log.warn("ignoring '%s'" % filename)
-				# 	continue
-				# log.debug("processing '%s'" % filename)
-				# 
-				# # standardize the show name
-				# try:
-				# 	ep.show = renamer.normalizeShowTitle( ep.show )
-				# except IndexError:
-				# 	log.warn(u'Real show name could not be found. Proceeding with the name scraped from the file: %s' % ep.show)
-				# # get the title of the episode
-				# try:
-				# 	ep.title = renamer.getEpisodeName( ep )
-				# 	ep.title = ep.title.decode('utf8')
-				# 	# log.debug(u'Episode\'s name is: %s' % )
-				# except EpisodeNotFoundError:
-				# 	log.warn("EpisodeNotFoundError: setting title to ''")
-				# 	ep.title = ""
-				# 
-				# # try and get the correctFilename, and pay attention to unicode difficulties
-				# try:
-				# 	correctFilename = ep.generateCorrectFilename()
-				# except UnicodeDecodeError:
-				# 	ep.title = ep.title.decode('utf8')
-				# 	correctFilename = ep.generateCorrectFilename()
-		# make the output of the stuff
-		# goal_path = config['pattern']  % { 'show': ep.show,
-		# 	                                       'season': int(ep.season),
-		# 	                                       'filename': correctFilename }
-		# goal_path = goal_path.encode('utf-8')
-		# goal_path = os.path.abspath( os.path.join( config['outputdir'], goal_path ) )
-		
+			
 		# make the goal path
 		if not config['simulate']:
 			mkdirp( os.path.dirname(goal_path) )
