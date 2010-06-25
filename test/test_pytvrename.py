@@ -6,6 +6,22 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(module_location)))
 
 from pytvrename import *
 
+
+class TestEpisodeFileParser(object):
+	"""docstring for TestEpisodeFileParser"""
+	def __init__(self, arg):
+		super(TestEpisodeFileParser, self).__init__()
+		
+
+class TestAgainstFile(unittest.TestCase):
+	
+	def setUp(self):
+		"""load the file"""
+		parser = Episode
+		self.file = open( filename, "r" )
+
+
+
 class TestAgainstFile(unittest.TestCase):
 	
 	def setUp(self):

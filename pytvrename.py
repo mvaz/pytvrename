@@ -175,6 +175,20 @@ class EpisodeRenamer(object):
 		return title
 	
 
+
+class EpisodeFilenameParser(object):
+	""" parser """
+	
+	default_regs =  [ r"(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+[Ss](?P<season>\d{1,2})[Ee](?P<number>\d{1,2})[\._ \-]",
+	         r"(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d{1,2})[\._ \-]?[Xx](?P<number>\d{1,2})[\._ \-]",
+	         r"(?P<path>.*\/)?(?P<show>.*?)[\._\ \-]+(?P<season>\d)[\._ \-]?(?P<number>\d{1,2})[\._ \-]" ]
+	
+	def __init__(self):
+		self.regs = [ re.compile( x, re.U | re.I ) for x in default_regs]
+
+
+
+
 class ShowNotFoundError(Exception):
 	""" docstring for EpisodeNotFoundError """
 	def __init__(self,value):
