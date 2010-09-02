@@ -202,7 +202,7 @@ def main(argv=None):
 		try:
 			(origin_path, goal_path) = run( renamer, filename)
 			
-		except CouldNotParseEpisodeError:
+		except ShowNotFoundError, CouldNotParseEpisodeError:
 			log.warn("ignoring '%s'" % filename)
 			continue
 			
