@@ -160,11 +160,12 @@ class EpisodeRenamer(object):
 		                                                                                 'number': int(episode.number) }
 		reg = re.compile( reg, re.I | re.U )
 		
-		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*$", re.I | re.U)
+		reg2 = re.compile( "<a.*?>([^<\"]*)<\/a>\s*(?:<span.*?<\/span>)?\s*$", re.I | re.U)
 		    
 		# split the page into different lines
 		for line in str(page).splitlines():
 			if reg.search( line ):
+				print line
 				title = reg2.search( line ).group(1)
 				break
 		else:
